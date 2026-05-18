@@ -1,14 +1,43 @@
+import { useEffect, useState } from 'react'
 import { useSigners } from '../hooks/useSigners'
 
+// Re-render all time labels every 30 seconds so they stay accurate
+function useTick() {
+  const [, set] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => set((n) => n + 1), 30_000)
+    return () => clearInterval(id)
+  }, [])
+}
+
 function timeAgo(ts) {
-  if (!ts) return ''
-  const s = Math.floor((Date.now() - ts.toMillis()) / 1000)
-  if (s < 60)  return 'አሁን'
-  const m = Math.floor(s / 60)
-  if (m < 60)  return `ከ${m} ደቂቃ`
-  const h = Math.floor(m / 60)
-  if (h < 24)  return `ከ${h} ሰዓት`
-  return `ከ${Math.floor(h / 24)} ቀን`
+  // Firestore serverTimestamp() is null on the local write until server confirms
+  if (!ts || typeof ts.toMillis !== 'function') return 'ቀሪ...'
+
+  const seconds = Math.floor((Date.now() - ts.toMillis()) / 1000)
+
+  if (seconds <  5)  return 'አሁን ደረሰ'
+  if (seconds < 60)  return `ከ${seconds} ሰከንድ በፊት`
+
+  const minutes = Math.floor(seconds / 60)
+  if (minutes === 1) return 'ከ1 ደቂቃ በፊት'
+  if (minutes < 60)  return `ከ${minutes} ደቂቃ በፊት`
+
+  const hours = Math.floor(minutes / 60)
+  if (hours === 1)   return 'ከ1 ሰዓት በፊት'
+  if (hours < 24)    return `ከ${hours} ሰዓት በፊት`
+
+  const days = Math.floor(hours / 24)
+  if (days === 1)    return 'ትናንት'
+  if (days < 7)      return `ከ${days} ቀን በፊት`
+
+  const weeks = Math.floor(days / 7)
+  if (weeks === 1)   return 'ከ1 ሳምንት በፊት'
+  if (weeks < 5)     return `ከ${weeks} ሳምንት በፊት`
+
+  const months = Math.floor(days / 30)
+  if (months === 1)  return 'ከ1 ወር በፊት'
+  return `ከ${months} ወር በፊት`
 }
 
 function Avatar({ name }) {
@@ -25,6 +54,7 @@ function Avatar({ name }) {
 }
 
 export default function RecentSigners() {
+  useTick()                              // keeps all timestamps fresh
   const { signers, status } = useSigners(30)
 
   return (
