@@ -10,5 +10,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
+const missing = Object.entries(firebaseConfig).filter(([, v]) => !v).map(([k]) => k)
+if (missing.length > 0) {
+  console.error('[Firebase] Missing env vars:', missing, '— signatures will NOT save.')
+}
+
 const app = initializeApp(firebaseConfig)
 export const db = getFirestore(app)
+export const firebaseReady = missing.length === 0

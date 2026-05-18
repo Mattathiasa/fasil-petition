@@ -6,7 +6,7 @@ import {
   serverTimestamp,
   increment,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db, firebaseReady } from '../firebase'
 
 export default function SignForm() {
   const [name, setName] = useState('')
@@ -23,14 +23,23 @@ export default function SignForm() {
   async function handleSubmit(e) {
     e.preventDefault()
     const trimmedName = name.trim()
+
     if (!trimmedName) {
       setError('ሙሉ ስምዎን ያስገቡ።')
       return
     }
+    if (!firebaseReady) {
+      setError('የ Firebase ቅንብር ጠፍቷል። እባክዎ ድጋሚ ይሞክሩ።')
+      return
+    }
+
     setLoading(true)
     setError('')
+
     try {
       const batch = writeBatch(db)
+
+      // 1. Save the signature document
       const sigRef = doc(collection(db, 'signatures'))
       batch.set(sigRef, {
         name: trimmedName,
@@ -38,13 +47,31 @@ export default function SignForm() {
         comment: comment.trim() || null,
         createdAt: serverTimestamp(),
       })
-      batch.set(doc(db, 'stats', 'count'), { total: increment(1) }, { merge: true })
+
+      // 2. Atomically increment the shared counter
+      batch.set(
+        doc(db, 'stats', 'count'),
+        { total: increment(1) },
+        { merge: true }
+      )
+
+      // Both writes succeed together or both fail — no partial saves
       await batch.commit()
+
+      // Only mark as signed AFTER confirmed save
       localStorage.setItem('fasil_petition_signed', '1')
       setHasSigned(true)
     } catch (err) {
-      console.error(err)
-      setError('ችግር ተፈጥሯል። ድጋሚ ይሞክሩ።')
+      console.error('[Petition] Save failed:', err.code, err.message)
+
+      // Show user-friendly Amharic errors
+      if (err.code === 'permission-denied') {
+        setError('ፊርማ ለማስቀመጥ ፍቃድ የለም። Firestore Rules ይፈትሹ።')
+      } else if (err.code === 'unavailable' || err.code === 'network-request-failed') {
+        setError('ኢንተርኔት ግንኙነት ችግር አለ። ድጋሚ ይሞክሩ።')
+      } else {
+        setError('ችግር ተፈጥሯል። ድጋሚ ይሞክሩ። (' + (err.code ?? 'unknown') + ')')
+      }
     } finally {
       setLoading(false)
     }
@@ -95,14 +122,12 @@ export default function SignForm() {
       className="rounded-2xl overflow-hidden"
       style={{ background: '#111', border: '1px solid #222' }}
     >
-      {/* Header */}
       <div className="px-6 py-5" style={{ background: '#CC0000' }}>
         <h2 className="text-white font-black text-xl">✍️ ፊርማዎን ይስጡ</h2>
         <p className="text-red-200 text-xs mt-1">ስምዎ ብቻ ያስፈልጋል — 30 ሰከንድ ይወስዳል</p>
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-4">
-        {/* Name */}
         <div>
           <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
             ሙሉ ስም <span style={{ color: '#CC0000' }}>*</span>
@@ -119,7 +144,6 @@ export default function SignForm() {
           />
         </div>
 
-        {/* Phone */}
         <div>
           <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
             ስልክ ቁጥር{' '}
@@ -137,7 +161,6 @@ export default function SignForm() {
           />
         </div>
 
-        {/* Comment */}
         <div>
           <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
             ለምን ፈረምኩ?{' '}
@@ -158,7 +181,11 @@ export default function SignForm() {
         {error && (
           <div
             className="rounded-xl px-4 py-3 text-sm"
-            style={{ background: 'rgba(204,0,0,0.1)', border: '1px solid rgba(204,0,0,0.3)', color: '#ff6666' }}
+            style={{
+              background: 'rgba(204,0,0,0.1)',
+              border: '1px solid rgba(204,0,0,0.4)',
+              color: '#ff6666',
+            }}
           >
             ⚠️ {error}
           </div>
@@ -173,7 +200,7 @@ export default function SignForm() {
             boxShadow: loading ? 'none' : '0 4px 25px rgba(204,0,0,0.5)',
           }}
         >
-          {loading ? '⏳ በማስገባት ላይ...' : '✊ ፊርማ ስጥ'}
+          {loading ? '⏳ በማስቀመጥ ላይ...' : '✊ ፊርማ ስጥ'}
         </button>
 
         <p className="text-gray-700 text-xs text-center">

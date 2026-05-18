@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  getCountFromServer,
+  doc,
+  setDoc,
+} from 'firebase/firestore'
 import { db } from '../firebase'
 
 const ADMIN_PASSWORD = 'FasilKenema2024'
@@ -20,6 +28,8 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [copied, setCopied] = useState(false)
+  const [recounting, setRecounting] = useState(false)
+  const [recount, setRecount] = useState(null)
 
   useEffect(() => {
     if (sessionStorage.getItem('fasil_admin') === '1') setAuthed(true)
@@ -68,6 +78,22 @@ export default function AdminPanel() {
     a.download = `fasil-petition-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  async function verifyCount() {
+    setRecounting(true)
+    try {
+      const snap = await getCountFromServer(collection(db, 'signatures'))
+      const real = snap.data().count
+      // Fix the stats document to match reality
+      await setDoc(doc(db, 'stats', 'count'), { total: real }, { merge: true })
+      setRecount(real)
+    } catch (err) {
+      console.error(err)
+      alert('Recount failed: ' + err.message)
+    } finally {
+      setRecounting(false)
+    }
   }
 
   function copyAll() {
@@ -152,7 +178,16 @@ export default function AdminPanel() {
             {loading ? 'በመጫን ላይ...' : `${signatures.length.toLocaleString()} ጠቅላላ`}
           </p>
         </div>
-        <div className="flex gap-2 ml-auto">
+        <div className="flex gap-2 ml-auto flex-wrap">
+          <button
+            onClick={verifyCount}
+            disabled={recounting}
+            title="Count all documents and fix the counter"
+            className="px-3 py-2 rounded-lg text-xs font-bold"
+            style={{ background: '#1a1a1a', border: '1px solid #333', color: recount !== null ? '#4ade80' : '#aaa' }}
+          >
+            {recounting ? '⏳' : recount !== null ? `✓ ${recount.toLocaleString()}` : '🔄 Recount'}
+          </button>
           <button
             onClick={copyAll}
             className="px-3 py-2 rounded-lg text-xs font-bold"
