@@ -1,123 +1,118 @@
-import { useEffect, useState, useRef } from 'react'
-import { doc, onSnapshot } from 'firebase/firestore'
-import { db } from '../firebase'
+import { useEffect, useRef, useState } from 'react'
+import { useCount } from '../hooks/useCount'
 
 const GOAL = 10000
 const MILESTONES = [500, 1000, 2500, 5000, 10000]
 
-function useCountUp(target, duration = 1200) {
+function useCountUp(target, duration = 1000) {
   const [display, setDisplay] = useState(0)
-  const prev = useRef(0)
+  const from = useRef(0)
+  const raf = useRef(null)
 
   useEffect(() => {
-    const start = prev.current
+    if (target === null) return
+    const start = from.current
     const diff = target - start
     if (diff === 0) return
-    const startTime = performance.now()
-    const frame = (now) => {
-      const elapsed = Math.min((now - startTime) / duration, 1)
-      const eased = 1 - Math.pow(1 - elapsed, 3)
+    const t0 = performance.now()
+    const tick = (now) => {
+      const p = Math.min((now - t0) / duration, 1)
+      const eased = 1 - Math.pow(1 - p, 3)
       setDisplay(Math.round(start + diff * eased))
-      if (elapsed < 1) requestAnimationFrame(frame)
-      else prev.current = target
+      if (p < 1) raf.current = requestAnimationFrame(tick)
+      else from.current = target
     }
-    requestAnimationFrame(frame)
+    raf.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf.current)
   }, [target, duration])
 
   return display
 }
 
-function nextMilestone(count) {
-  return MILESTONES.find((m) => m > count) ?? GOAL
+function nextMilestone(n) {
+  return MILESTONES.find((m) => m > n) ?? GOAL
 }
 
 export default function SignatureCounter() {
-  const [count, setCount] = useState(0)
-  const [loaded, setLoaded] = useState(false)
-  const animated = useCountUp(count)
+  const { count, status } = useCount()
+  const display = useCountUp(count)
 
-  useEffect(() => {
-    const unsub = onSnapshot(doc(db, 'stats', 'count'), (snap) => {
-      setCount(snap.exists() ? snap.data().total ?? 0 : 0)
-      setLoaded(true)
-    })
-    return unsub
-  }, [])
-
-  const percent = Math.min((count / GOAL) * 100, 100)
-  const next = nextMilestone(count)
-  const remaining = next - count
+  const safeCount = count ?? 0
+  const pct = Math.min((safeCount / GOAL) * 100, 100)
+  const next = nextMilestone(safeCount)
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden"
-      style={{ background: '#111', border: '1px solid #222' }}
-    >
-      {/* Top momentum bar */}
-      <div
-        className="px-6 py-3 flex items-center gap-2 text-sm font-semibold"
-        style={{ background: '#CC0000' }}
-      >
-        <span className="inline-block w-2 h-2 rounded-full bg-white animate-pulse" />
-        <span className="text-white">
-          {loaded
-            ? `ቀጣዩ ዒላማ ${next.toLocaleString()} ፊርማ — ቀሪ ${remaining.toLocaleString()} ብቻ!`
-            : 'ፊርማዎች በቀጥታ ይቆጠራሉ…'}
+    <div className="rounded-2xl overflow-hidden" style={{ background: '#111', border: '1px solid #1e1e1e' }}>
+      {/* Status bar */}
+      <div className="flex items-center gap-2 px-5 py-3" style={{ background: '#CC0000' }}>
+        <span
+          className="w-2 h-2 rounded-full flex-shrink-0"
+          style={{
+            background: status === 'live' ? '#fff' : status === 'error' ? '#ff0' : '#fffa',
+            animation: status === 'live' ? 'pulse 2s infinite' : 'none',
+          }}
+        />
+        <span className="text-white text-xs font-semibold">
+          {status === 'connecting' && 'Firebase ጋር በማገናኘት ላይ...'}
+          {status === 'error'      && '⚠️ ግንኙነት ስህተት — ድጋሚ ይጫኑ'}
+          {status === 'live' && count !== null &&
+            `ቀጣዩ ዒላማ ${next.toLocaleString()} ፊርማ — ቀሪ ${(next - safeCount).toLocaleString()} ብቻ!`}
         </span>
       </div>
 
-      <div className="p-6">
+      <div className="p-5 space-y-4">
         {/* Big number */}
-        <div className="flex items-end justify-between mb-1">
+        <div className="flex items-end justify-between">
           <div>
-            <p className="text-6xl sm:text-7xl font-black text-white tabular-nums leading-none">
-              {animated.toLocaleString()}
-            </p>
-            <p className="text-gray-400 text-sm mt-2">ደጋፊዎች ፈርመዋል</p>
+            {count === null ? (
+              <div className="h-16 w-32 rounded-lg animate-pulse" style={{ background: '#1e1e1e' }} />
+            ) : (
+              <p className="text-6xl font-black text-white tabular-nums leading-none">
+                {display.toLocaleString()}
+              </p>
+            )}
+            <p className="text-gray-500 text-sm mt-2">ደጋፊዎች ፈርመዋል</p>
           </div>
-          <div className="text-right pb-1">
-            <p className="font-black text-2xl" style={{ color: '#CC0000' }}>
-              {GOAL.toLocaleString()}
-            </p>
-            <p className="text-gray-500 text-xs">ዒላማ</p>
+          <div className="text-right">
+            <p className="text-2xl font-black" style={{ color: '#CC0000' }}>{GOAL.toLocaleString()}</p>
+            <p className="text-gray-600 text-xs">ዒላማ</p>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="relative w-full rounded-full h-5 overflow-hidden mt-4 mb-2" style={{ background: '#222' }}>
-          <div
-            className="h-full rounded-full transition-all duration-1000 ease-out"
-            style={{
-              width: `${Math.max(percent, 0.5)}%`,
-              background: 'linear-gradient(90deg, #CC0000 0%, #ff3333 100%)',
-            }}
-          />
-          {/* Milestone ticks */}
-          {MILESTONES.slice(0, -1).map((m) => (
+        <div>
+          <div className="relative h-4 rounded-full overflow-hidden" style={{ background: '#222' }}>
             <div
-              key={m}
-              className="absolute top-0 bottom-0 w-0.5"
+              className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000"
               style={{
-                left: `${(m / GOAL) * 100}%`,
-                background: count >= m ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',
+                width: `${Math.max(pct, count !== null ? 0.5 : 0)}%`,
+                background: 'linear-gradient(90deg, #CC0000, #ff4444)',
               }}
             />
-          ))}
+            {MILESTONES.slice(0, -1).map((m) => (
+              <div
+                key={m}
+                className="absolute top-0 bottom-0 w-px"
+                style={{
+                  left: `${(m / GOAL) * 100}%`,
+                  background: safeCount >= m ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.1)',
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between mt-1.5 text-xs text-gray-600">
+            <span>{pct.toFixed(1)}%</span>
+            <span>ዒላማ {GOAL.toLocaleString()}</span>
+          </div>
         </div>
 
-        {/* Milestone labels */}
-        <div className="flex justify-between text-xs text-gray-600 mb-4">
-          <span>{percent.toFixed(1)}% ተሟልቷል</span>
-          <span>ዒላማ: {GOAL.toLocaleString()}</span>
-        </div>
-
-        {/* Share nudge */}
+        {/* Share */}
         <button
           onClick={() => {
             if (navigator.share) {
               navigator.share({
                 title: 'ፋሲል ከነማ — አቶ አቢዮት ብርሃኑን ያንሱ',
-                text: `${count.toLocaleString()} ደጋፊዎች ፈርመዋል! እርስዎም ይቀላቀሉ።`,
+                text: `${safeCount.toLocaleString()} ደጋፊዎች ፈርመዋል! እርስዎም ይቀላቀሉ።`,
                 url: window.location.href,
               })
             } else {
@@ -125,10 +120,10 @@ export default function SignatureCounter() {
               alert('ሊንኩ ተቀድቷል!')
             }
           }}
-          className="w-full rounded-xl py-3 text-sm font-bold transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
-          style={{ background: '#1a1a1a', color: '#fff', border: '1px solid #333' }}
+          className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-opacity hover:opacity-80"
+          style={{ background: '#1a1a1a', color: '#ccc', border: '1px solid #2a2a2a' }}
         >
-          📤 ለጓደኞችዎ ያጋሩ — ፊርማዎቹ ይጨምሩ!
+          📤 ለጓደኞችዎ ያጋሩ
         </button>
       </div>
     </div>

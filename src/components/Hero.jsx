@@ -1,136 +1,87 @@
+import { useCount } from '../hooks/useCount'
+
 export default function Hero() {
-  function scrollToForm() {
-    document.getElementById('sign-form')?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const { count } = useCount()
 
   return (
     <div
       className="relative overflow-hidden"
-      style={{ background: 'linear-gradient(160deg, #1c0000 0%, #0f0000 45%, #0d0d0d 100%)' }}
+      style={{ background: 'linear-gradient(170deg,#1c0000 0%,#0f0000 50%,#0a0a0a 100%)' }}
     >
-      {/* Glow */}
+      {/* Red glow */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 90% 70% at 50% -10%, rgba(204,0,0,0.3) 0%, transparent 65%)',
-        }}
+        style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%,rgba(204,0,0,0.28) 0%,transparent 65%)' }}
       />
 
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-12 text-center">
-        {/* Club badge */}
-        <div className="flex justify-center mb-5">
-          <div className="relative">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-12">
+        <div className="flex flex-col lg:flex-row items-center gap-8">
+
+          {/* Crest */}
+          <div className="flex-shrink-0">
             <img
               src="/crest.jpg"
               alt="ፋሲል ከነማ"
-              className="w-28 h-28 rounded-full object-cover object-top"
-              style={{
-                border: '3px solid #CC0000',
-                boxShadow: '0 0 50px rgba(204,0,0,0.6), 0 0 100px rgba(204,0,0,0.2)',
-              }}
+              className="w-28 h-28 lg:w-36 lg:h-36 rounded-full object-cover object-top"
+              style={{ border: '3px solid #CC0000', boxShadow: '0 0 60px rgba(204,0,0,0.55)' }}
             />
           </div>
-        </div>
 
-        <p
-          className="text-xs font-bold tracking-[0.3em] uppercase mb-4"
-          style={{ color: '#CC0000' }}
-        >
-          ፋሲል ከነማ FC — ባህር ዳር · ከ1968 ዓ.ም ጀምሮ
-        </p>
-
-        <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-2">
-          አቶ አቢዮት ብርሃኑን
-          <br />
-          <span style={{ color: '#CC0000' }}>ከስራ ያንሱ!</span>
-        </h1>
-
-        <p className="text-gray-400 text-sm sm:text-base leading-relaxed mb-8 max-w-md mx-auto">
-          ለጎንደር ከተማ ክቡር ከንቲባ ለሚቀርበው ክፍት ደብዳቤ — ፊርማዎን ይስጡ።
-        </p>
-
-        {/* Manager card — "wanted out" style */}
-        <div
-          className="inline-flex items-center gap-4 rounded-2xl px-5 py-4 mb-8 text-left"
-          style={{
-            background: 'rgba(204,0,0,0.12)',
-            border: '1px solid rgba(204,0,0,0.5)',
-            backdropFilter: 'blur(8px)',
-          }}
-        >
-          <div className="relative flex-shrink-0">
-            <img
-              src="/manager.jpg"
-              alt="አቶ አቢዮት ብርሃኑ"
-              className="w-14 h-14 rounded-full object-cover object-top"
-              style={{ border: '2px solid rgba(204,0,0,0.8)' }}
-            />
-            <div
-              className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-black"
-              style={{ background: '#CC0000', boxShadow: '0 0 8px rgba(204,0,0,0.8)' }}
-            >
-              ✕
-            </div>
-          </div>
-          <div>
-            <p className="text-white font-bold text-sm leading-tight">አቶ አቢዮት ብርሃኑ</p>
-            <p className="text-gray-500 text-xs">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
-            <p className="text-xs font-bold mt-1" style={{ color: '#ff5555' }}>
-              ⚠️ ይህ ሰው ሊወርድ ይገባዋል
+          {/* Text */}
+          <div className="flex-1 text-center lg:text-left">
+            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-3" style={{ color: '#CC0000' }}>
+              ፋሲል ከነማ FC · ባህር ዳር · ከ1968 ዓ.ም
             </p>
-          </div>
-        </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4">
+              አቶ አቢዮት ብርሃኑን
+              <br />
+              <span style={{ color: '#CC0000' }}>ከስራ ያንሱ!</span>
+            </h1>
+            <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-xl lg:max-w-none mb-6">
+              ለ56 ዓመት ታሪክ ያለው ፋሲል ከነማ ብቁ አመራር ይፈልጋል።
+              ይህ ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ ቀርቧል።
+            </p>
 
-        {/* CTA */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={scrollToForm}
-            className="px-10 py-4 rounded-full text-white font-black text-lg transition-all hover:scale-105 active:scale-95"
-            style={{
-              background: '#CC0000',
-              boxShadow: '0 4px 30px rgba(204,0,0,0.6)',
-            }}
-          >
-            ✊ ፊርማ ስጥ
-          </button>
-          <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: 'ፋሲል ከነማ — አቶ አቢዮት ብርሃኑን ያንሱ',
-                  text: 'ፋሲል ከነማን ለማዳን ፊርማዎን ይስጡ!',
-                  url: window.location.href,
-                })
-              } else {
-                navigator.clipboard.writeText(window.location.href)
-                alert('ሊንኩ ተቀድቷል!')
-              }
-            }}
-            className="px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 active:scale-95"
-            style={{
-              background: 'rgba(255,255,255,0.08)',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.15)',
-            }}
-          >
-            📤 ያጋሩ
-          </button>
-        </div>
-
-        {/* Stats row */}
-        <div className="flex justify-center gap-8 mt-10 pt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          {[
-            { icon: '📅', value: '56', label: 'ዓመት ታሪክ' },
-            { icon: '🏆', value: '5×', label: 'ሻምፒዮን' },
-            { icon: '🏟️', value: 'ፕሪሚዬር', label: 'ሊግ' },
-          ].map((s) => (
-            <div key={s.label} className="flex flex-col items-center gap-0.5">
-              <span className="text-xl">{s.icon}</span>
-              <span className="text-white font-black text-sm">{s.value}</span>
-              <span className="text-gray-600 text-xs">{s.label}</span>
+            {/* Manager card */}
+            <div
+              className="inline-flex items-center gap-4 rounded-2xl px-4 py-3 text-left"
+              style={{ background: 'rgba(204,0,0,0.1)', border: '1px solid rgba(204,0,0,0.4)' }}
+            >
+              <div className="relative flex-shrink-0">
+                <img
+                  src="/manager.jpg"
+                  alt="አቶ አቢዮት ብርሃኑ"
+                  className="w-12 h-12 rounded-full object-cover object-top"
+                  style={{ border: '2px solid rgba(204,0,0,0.8)' }}
+                />
+                <div
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-black"
+                  style={{ background: '#CC0000' }}
+                >✕</div>
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm">አቶ አቢዮት ብርሃኑ</p>
+                <p className="text-gray-500 text-xs">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
+                <p className="text-xs font-semibold mt-0.5" style={{ color: '#ff5555' }}>
+                  ⚠️ ሊወርዱ ይገባቸዋል
+                </p>
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* Right: counter pill (desktop only) */}
+          <div className="hidden lg:flex flex-col items-center gap-1 flex-shrink-0">
+            <div
+              className="rounded-2xl px-6 py-4 text-center"
+              style={{ background: 'rgba(204,0,0,0.15)', border: '1px solid rgba(204,0,0,0.35)' }}
+            >
+              <p className="text-5xl font-black text-white tabular-nums">
+                {count === null ? '—' : count.toLocaleString()}
+              </p>
+              <p className="text-red-300 text-xs mt-1 font-semibold">ፊርማዎች ተሰብስበዋል</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

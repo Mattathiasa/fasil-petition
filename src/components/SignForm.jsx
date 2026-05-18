@@ -1,33 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  collection,
-  doc,
-  writeBatch,
-  serverTimestamp,
-  increment,
+  collection, doc, writeBatch, serverTimestamp, increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
 export default function SignForm() {
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [name, setName]       = useState('')
+  const [phone, setPhone]     = useState('')
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [hasSigned, setHasSigned] = useState(false)
+  const [error, setError]     = useState('')
+  const [done, setDone]       = useState(false)
 
   useEffect(() => {
-    setHasSigned(!!localStorage.getItem('fasil_petition_signed'))
+    if (localStorage.getItem('fasil_petition_signed')) setDone(true)
   }, [])
 
-  async function handleSubmit(e) {
+  async function submit(e) {
     e.preventDefault()
-    const trimmedName = name.trim()
-
-    if (!trimmedName) {
-      setError('ሙሉ ስምዎን ያስገቡ።')
-      return
-    }
+    const trimName = name.trim()
+    if (!trimName) { setError('ሙሉ ስምዎን ያስገቡ።'); return }
 
     setLoading(true)
     setError('')
@@ -35,50 +27,43 @@ export default function SignForm() {
     try {
       const batch = writeBatch(db)
 
-      // 1. Save the signature document
-      const sigRef = doc(collection(db, 'signatures'))
-      batch.set(sigRef, {
-        name: trimmedName,
-        phone: phone.trim() || null,
-        comment: comment.trim() || null,
+      // 1 — save signature
+      batch.set(doc(collection(db, 'signatures')), {
+        name:      trimName,
+        phone:     phone.trim()   || null,
+        comment:   comment.trim() || null,
         createdAt: serverTimestamp(),
       })
 
-      // 2. Atomically increment the shared counter
+      // 2 — atomic counter increment (creates doc if missing via merge)
       batch.set(
         doc(db, 'stats', 'count'),
         { total: increment(1) },
         { merge: true }
       )
 
-      // Both writes succeed together or both fail — no partial saves
-      await batch.commit()
-
-      // Only mark as signed AFTER confirmed save
+      await batch.commit()                          // both save or both fail
       localStorage.setItem('fasil_petition_signed', '1')
-      setHasSigned(true)
+      setDone(true)
     } catch (err) {
-      console.error('[Petition] Save failed:', err.code, err.message)
-
-      // Show user-friendly Amharic errors
-      if (err.code === 'permission-denied') {
-        setError('ፊርማ ለማስቀመጥ ፍቃድ የለም። Firestore Rules ይፈትሹ።')
-      } else if (err.code === 'unavailable' || err.code === 'network-request-failed') {
-        setError('ኢንተርኔት ግንኙነት ችግር አለ። ድጋሚ ይሞክሩ።')
-      } else {
-        setError('ችግር ተፈጥሯል። ድጋሚ ይሞክሩ። (' + (err.code ?? 'unknown') + ')')
+      console.error('[SignForm]', err.code, err.message)
+      const msg = {
+        'permission-denied':     'ፍቃድ ተከልክሏል። Firestore Rules ይፈትሹ።',
+        'unavailable':           'ኢንተርኔት ችግር አለ። ድጋሚ ይሞክሩ።',
+        'network-request-failed':'ኢንተርኔት ግንኙነት የለም። ድጋሚ ይሞክሩ።',
       }
+      setError(msg[err.code] ?? `ችግር ተፈጥሯል (${err.code ?? 'unknown'})`)
     } finally {
       setLoading(false)
     }
   }
 
-  function handleShare() {
+  function share() {
     if (navigator.share) {
       navigator.share({
         title: 'ፋሲል ከነማ — አቶ አቢዮት ብርሃኑን ያንሱ',
-        text: 'ፋሲል ከነማን ለማዳን ፊርማዎን ይስጡ!',
-        url: window.location.href,
+        text:  'ፋሲል ከነማን ለማዳን ፊርማዎን ይስጡ!',
+        url:   window.location.href,
       })
     } else {
       navigator.clipboard.writeText(window.location.href)
@@ -86,123 +71,125 @@ export default function SignForm() {
     }
   }
 
-  if (hasSigned) {
+  // ── Signed state ───────────────────────────────────────────────
+  if (done) {
     return (
       <div
         id="sign-form"
-        className="rounded-2xl p-8 text-center"
-        style={{ background: '#0a1f0a', border: '1px solid #1a4d1a' }}
+        className="rounded-2xl p-6 text-center space-y-4"
+        style={{ background: '#0c1f0c', border: '1px solid #1a4a1a' }}
       >
-        <div className="text-6xl mb-4">🎉</div>
-        <h3 className="text-white font-black text-2xl mb-2">ፊርማዎ ተመዝግቧል!</h3>
-        <p className="text-gray-400 mb-2 leading-relaxed">
-          ለፋሲል ከነማ ደጋፊነትዎን አሳይተዋል።
-        </p>
-        <p className="text-gray-500 text-sm mb-6">
-          ለጓደኞችዎ ያጋሩ — ፊርማ ሲጨምር ኃይላችን ይጠናከራል!
-        </p>
+        <p className="text-5xl">🎉</p>
+        <div>
+          <p className="text-white font-black text-xl">ፊርማዎ ተመዝግቧል!</p>
+          <p className="text-gray-400 text-sm mt-1">ለፋሲል ከነማ ደጋፊነትዎን አሳይተዋል።</p>
+        </div>
         <button
-          onClick={handleShare}
-          className="inline-flex items-center gap-2 px-8 py-3 rounded-full text-white font-bold text-base transition-all hover:scale-105 active:scale-95"
-          style={{ background: '#CC0000', boxShadow: '0 4px 20px rgba(204,0,0,0.4)' }}
+          onClick={share}
+          className="w-full py-3 rounded-xl text-white font-bold transition-opacity hover:opacity-90"
+          style={{ background: '#CC0000' }}
         >
-          📤 ለሌሎች ያጋሩ
+          📤 ለጓደኞችዎ ያጋሩ
         </button>
       </div>
     )
   }
 
+  // ── Form ───────────────────────────────────────────────────────
   return (
     <div
       id="sign-form"
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#111', border: '1px solid #222' }}
+      style={{ background: '#111', border: '1px solid #1e1e1e' }}
     >
-      <div className="px-6 py-5" style={{ background: '#CC0000' }}>
-        <h2 className="text-white font-black text-xl">✍️ ፊርማዎን ይስጡ</h2>
-        <p className="text-red-200 text-xs mt-1">ስምዎ ብቻ ያስፈልጋል — 30 ሰከንድ ይወስዳል</p>
+      <div className="px-5 py-4" style={{ background: '#CC0000' }}>
+        <p className="text-white font-black text-lg">✍️ ፊርማዎን ይስጡ</p>
+        <p className="text-red-200 text-xs mt-0.5">ስምዎ ብቻ ያስፈልጋል — 30 ሰከንድ ይወስዳል</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
-        <div>
-          <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
-            ሙሉ ስም <span style={{ color: '#CC0000' }}>*</span>
-          </label>
-          <input
+      <form onSubmit={submit} className="p-5 space-y-4">
+        <Field label="ሙሉ ስም" required>
+          <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="ለምሳሌ፦ አበበ ከበደ"
-            className="w-full rounded-xl px-4 py-3 text-white text-base placeholder-gray-600 outline-none"
-            style={{ background: '#1a1a1a', border: '1.5px solid #2a2a2a' }}
-            onFocus={(e) => (e.target.style.borderColor = '#CC0000')}
-            onBlur={(e) => (e.target.style.borderColor = '#2a2a2a')}
+            autoComplete="name"
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
-            ስልክ ቁጥር{' '}
-            <span className="text-gray-600 normal-case font-normal">(አማራጭ)</span>
-          </label>
-          <input
+        <Field label="ስልክ ቁጥር" hint="አማራጭ">
+          <Input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="+251 9xx xxx xxx"
-            className="w-full rounded-xl px-4 py-3 text-white placeholder-gray-600 outline-none"
-            style={{ background: '#1a1a1a', border: '1.5px solid #2a2a2a' }}
-            onFocus={(e) => (e.target.style.borderColor = '#CC0000')}
-            onBlur={(e) => (e.target.style.borderColor = '#2a2a2a')}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
-            ለምን ፈረምኩ?{' '}
-            <span className="text-gray-600 normal-case font-normal">(አማራጭ)</span>
-          </label>
+        <Field label="ለምን ፈረምኩ?" hint="አማራጭ">
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="ለፋሲል ከነማ ያለዎን ፍቅር ያካፍሉ..."
             rows={3}
-            className="w-full rounded-xl px-4 py-3 text-white placeholder-gray-600 outline-none resize-none"
-            style={{ background: '#1a1a1a', border: '1.5px solid #2a2a2a' }}
+            className="w-full rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 outline-none resize-none transition-colors"
+            style={{ background: '#181818', border: '1.5px solid #2a2a2a' }}
             onFocus={(e) => (e.target.style.borderColor = '#CC0000')}
-            onBlur={(e) => (e.target.style.borderColor = '#2a2a2a')}
+            onBlur={(e)  => (e.target.style.borderColor = '#2a2a2a')}
           />
-        </div>
+        </Field>
 
         {error && (
-          <div
-            className="rounded-xl px-4 py-3 text-sm"
-            style={{
-              background: 'rgba(204,0,0,0.1)',
-              border: '1px solid rgba(204,0,0,0.4)',
-              color: '#ff6666',
-            }}
+          <p
+            className="text-sm rounded-xl px-4 py-3"
+            style={{ background: 'rgba(204,0,0,0.12)', border: '1px solid rgba(204,0,0,0.35)', color: '#ff7070' }}
           >
             ⚠️ {error}
-          </div>
+          </p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 rounded-xl text-white font-black text-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full py-4 rounded-xl text-white font-black text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             background: '#CC0000',
-            boxShadow: loading ? 'none' : '0 4px 25px rgba(204,0,0,0.5)',
+            boxShadow: loading ? 'none' : '0 4px 24px rgba(204,0,0,0.45)',
           }}
         >
           {loading ? '⏳ በማስቀመጥ ላይ...' : '✊ ፊርማ ስጥ'}
         </button>
 
         <p className="text-gray-700 text-xs text-center">
-          🔒 ፊርማዎ ለሕዝብ ይታያል · ስምዎ ይታያል
+          🔒 ስምዎ ለሕዝብ ይታያል
         </p>
       </form>
     </div>
+  )
+}
+
+function Field({ label, hint, required, children }) {
+  return (
+    <div>
+      <label className="flex items-center gap-2 text-gray-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+        {label}
+        {required && <span style={{ color: '#CC0000' }}>*</span>}
+        {hint && <span className="text-gray-600 normal-case font-normal tracking-normal">({hint})</span>}
+      </label>
+      {children}
+    </div>
+  )
+}
+
+function Input({ ...props }) {
+  return (
+    <input
+      {...props}
+      className="w-full rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 outline-none transition-colors"
+      style={{ background: '#181818', border: '1.5px solid #2a2a2a' }}
+      onFocus={(e) => (e.target.style.borderColor = '#CC0000')}
+      onBlur={(e)  => (e.target.style.borderColor = '#2a2a2a')}
+    />
   )
 }
