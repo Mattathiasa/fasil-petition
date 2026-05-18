@@ -6,7 +6,7 @@ import {
   serverTimestamp,
   increment,
 } from 'firebase/firestore'
-import { db, firebaseReady } from '../firebase'
+import { db } from '../firebase'
 
 export default function SignForm() {
   const [name, setName] = useState('')
@@ -26,10 +26,6 @@ export default function SignForm() {
 
     if (!trimmedName) {
       setError('ሙሉ ስምዎን ያስገቡ።')
-      return
-    }
-    if (!firebaseReady) {
-      setError('የ Firebase ቅንብር ጠፍቷል። እባክዎ ድጋሚ ይሞክሩ።')
       return
     }
 
