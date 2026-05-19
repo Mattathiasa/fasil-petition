@@ -44,27 +44,36 @@ export default function Hero() {
 
             {/* Manager card */}
             <div
-              className="inline-flex items-center gap-4 rounded-2xl px-4 py-4 text-left"
-              style={{ background: 'rgba(204,0,0,0.1)', border: '1px solid rgba(204,0,0,0.4)' }}
+              className="inline-block rounded-2xl overflow-hidden text-left"
+              style={{ border: '2px solid rgba(204,0,0,0.5)', maxWidth: '260px' }}
             >
-              <div className="relative flex-shrink-0">
+              <div className="relative">
                 <img
                   src="/manager.jpg"
                   alt="አቶ አቢዮት ብርሃኑ"
-                  className="w-24 h-24 rounded-xl object-cover object-top"
-                  style={{ border: '2px solid rgba(204,0,0,0.8)' }}
+                  className="w-full object-cover object-top"
+                  style={{ height: '300px' }}
                 />
+                {/* Red diagonal banner */}
                 <div
-                  className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-black"
-                  style={{ background: '#CC0000' }}
+                  className="absolute top-4 left-0 px-4 py-1 text-white text-xs font-black tracking-widest uppercase"
+                  style={{ background: '#CC0000', letterSpacing: '0.15em' }}
+                >
+                  ሊወርዱ ይገባቸዋል
+                </div>
+                {/* Big X overlay */}
+                <div
+                  className="absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center text-white text-xl font-black"
+                  style={{ background: '#CC0000', boxShadow: '0 0 12px rgba(204,0,0,0.8)' }}
                 >✕</div>
-              </div>
-              <div>
-                <p className="text-white font-bold text-base">አቶ አቢዮት ብርሃኑ</p>
-                <p className="text-gray-500 text-sm">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
-                <p className="text-sm font-semibold mt-1" style={{ color: '#ff5555' }}>
-                  ⚠️ ሊወርዱ ይገባቸዋል
-                </p>
+                {/* Gradient footer */}
+                <div
+                  className="absolute bottom-0 inset-x-0 px-4 py-3"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%)' }}
+                >
+                  <p className="text-white font-black text-base">አቶ አቢዮት ብርሃኑ</p>
+                  <p className="text-gray-400 text-xs">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
+                </div>
               </div>
             </div>
           </div>
