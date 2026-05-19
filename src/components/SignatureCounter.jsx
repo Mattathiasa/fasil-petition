@@ -111,7 +111,7 @@ export default function SignatureCounter() {
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: 'ፋሲል ከነማ — አቶ አቢዮት ብርሃኑን ያንሱ',
+                title: 'ፋሲል ከተማ እግርኳስ ክለብ — አቶ አቢዮት ብርሃኑን ያንሱ',
                 text: `${safeCount.toLocaleString()} ደጋፊዎች ፈርመዋል! እርስዎም ይቀላቀሉ።`,
                 url: window.location.href,
               })

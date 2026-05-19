@@ -129,7 +129,7 @@ export default function AdminPanel() {
           <div className="text-center mb-8">
             <div className="text-5xl mb-3">🔐</div>
             <h1 className="text-white font-black text-2xl">Admin</h1>
-            <p className="text-gray-500 text-sm mt-1">ፋሲል ከነማ Petition</p>
+            <p className="text-gray-500 text-sm mt-1">ፋሲል ከተማ እግርኳስ ክለብ Petition</p>
           </div>
           <div
             className="rounded-2xl p-6 space-y-4"

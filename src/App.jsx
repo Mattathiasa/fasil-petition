@@ -56,7 +56,7 @@ export default function App() {
         className="text-center py-10"
         style={{ borderTop: '1px solid #1a1a1a' }}
       >
-        <p className="text-white font-bold">ፋሲል ከነማ ከክለብም በላይ ነው 🇦🇹</p>
+        <p className="text-white font-bold">ፋሲል ከተማ እግርኳስ ክለብ ከክለብም በላይ ነው 🇦🇹</p>
         <p className="text-gray-600 text-xs mt-1">
           ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ · {new Date().getFullYear()}
         </p>

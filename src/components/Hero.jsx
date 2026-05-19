@@ -35,7 +35,7 @@ export default function Hero() {
           <div className="absolute top-4 left-4">
             <img
               src="/crest.jpg"
-              alt="ፋሲል ከነማ"
+              alt="ፋሲል ከተማ እግርኳስ ክለብ"
               className="w-16 h-16 rounded-full object-cover object-top"
               style={{ border: '2px solid #CC0000', boxShadow: '0 0 20px rgba(204,0,0,0.6)' }}
             />
@@ -50,7 +50,7 @@ export default function Hero() {
           {/* Name at bottom of photo */}
           <div className="absolute bottom-0 inset-x-0 px-6 pb-5">
             <p className="text-white font-black text-2xl sm:text-3xl">አቶ አቢዮት ብርሃኑ</p>
-            <p className="text-red-400 text-sm font-semibold mt-1">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
+            <p className="text-red-400 text-sm font-semibold mt-1">ስራ አስኪያጅ — ፋሲል ከተማ እግርኳስ ክለብ</p>
           </div>
         </div>
 
@@ -58,7 +58,7 @@ export default function Hero() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="flex-1">
             <p className="text-xs font-bold tracking-[0.3em] uppercase mb-2" style={{ color: '#CC0000' }}>
-              ፋሲል ከነማ FC · ባህር ዳር · ከ1968 ዓ.ም
+              ፋሲል ከተማ እግርኳስ ክለብ · ባህር ዳር · ከ1968 ዓ.ም
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
               አቶ አቢዮት ብርሃኑን
@@ -66,7 +66,7 @@ export default function Hero() {
               <span style={{ color: '#CC0000' }}>ከስራ ያንሱ!</span>
             </h1>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-2xl">
-              ለ56 ዓመት ታሪክ ያለው ፋሲል ከነማ ብቁ አመራር ይፈልጋል።
+              ለ56 ዓመት ታሪክ ያለው ፋሲል ከተማ እግርኳስ ክለብ ብቁ አመራር ይፈልጋል።
               ይህ ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ ቀርቧል።
             </p>
           </div>
