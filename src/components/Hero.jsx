@@ -44,25 +44,25 @@ export default function Hero() {
 
             {/* Manager card */}
             <div
-              className="inline-flex items-center gap-4 rounded-2xl px-4 py-3 text-left"
+              className="inline-flex items-center gap-4 rounded-2xl px-4 py-4 text-left"
               style={{ background: 'rgba(204,0,0,0.1)', border: '1px solid rgba(204,0,0,0.4)' }}
             >
               <div className="relative flex-shrink-0">
                 <img
                   src="/manager.jpg"
                   alt="አቶ አቢዮት ብርሃኑ"
-                  className="w-12 h-12 rounded-full object-cover object-top"
+                  className="w-24 h-24 rounded-xl object-cover object-top"
                   style={{ border: '2px solid rgba(204,0,0,0.8)' }}
                 />
                 <div
-                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-black"
+                  className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center text-white text-sm font-black"
                   style={{ background: '#CC0000' }}
                 >✕</div>
               </div>
               <div>
-                <p className="text-white font-bold text-sm">አቶ አቢዮት ብርሃኑ</p>
-                <p className="text-gray-500 text-xs">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
-                <p className="text-xs font-semibold mt-0.5" style={{ color: '#ff5555' }}>
+                <p className="text-white font-bold text-base">አቶ አቢዮት ብርሃኑ</p>
+                <p className="text-gray-500 text-sm">ስራ አስኪያጅ — ፋሲል ከነማ FC</p>
+                <p className="text-sm font-semibold mt-1" style={{ color: '#ff5555' }}>
                   ⚠️ ሊወርዱ ይገባቸዋል
                 </p>
               </div>

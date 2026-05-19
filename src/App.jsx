@@ -4,6 +4,7 @@ import SignatureCounter from './components/SignatureCounter'
 import SignForm       from './components/SignForm'
 import FanGallery     from './components/FanGallery'
 import PetitionLetter from './components/PetitionLetter'
+import ProblemsSection from './components/ProblemsSection'
 import ReasonsSection from './components/ReasonsSection'
 import RecentSigners  from './components/RecentSigners'
 import MobileCTA      from './components/MobileCTA'
@@ -40,6 +41,7 @@ export default function App() {
           <main className="flex-1 min-w-0 lg:order-1 space-y-6">
             <FanGallery />
             <PetitionLetter />
+            <ProblemsSection />
             <ReasonsSection />
             <RecentSigners />
           </main>

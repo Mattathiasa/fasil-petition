@@ -23,6 +23,15 @@ export default function PetitionLetter() {
           ምክንያት የክለባችን ስራ አስኪያጅ ነው። ከዚህ በኋላ ይህ ችግር መቀጠል የለበትም።
         </p>
 
+        <p className="text-gray-200">
+          ክለቡ ተቋማዊ ስትራክቸር ኖሮት ዘመኑን የዋጀ አሰራር እንዲከተል በቦታው ብቁ እና ተመራጭ የሆነ ስራ አስኪያጅ
+          ሊቀጠር ይገባል! የዋና ስራ አስኪያጁ አቅም ማነስ እና ለቦታው ብቁ አለመሆን በክለቡ ላይ ዘርፈ ብዙ ችግሮችን
+          ያስከተለ ሲሆን ከነዚህም በጥቂቱ፦ <strong className="text-white">ተቋማዊ ስትራክቸርን ተግባራዊ
+          አለማድረግ</strong>፣ <strong className="text-white">የፋይናንስ አጠቃቀም ጉድለት እና
+          ምዝበራ</strong>፣ እንዲሁም <strong className="text-white">ከስራ ባልደረቦቻቸው ጋ አለመግባባት
+          እና ግጭት ውስጥ መግባት</strong> — ክለቡ መድረስ የነበረበት ቦታ እንዳይደርስ በማድረግ እንቅፋት ሆነዋል።
+        </p>
+
         {/* Pull quote */}
         <blockquote
           className="rounded-xl p-5 border-l-4 italic"

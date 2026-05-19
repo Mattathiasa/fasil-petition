@@ -15,6 +15,14 @@ const photos = [
     src: '/fan4.jpg',
     caption: '"ለማሰሪ ልቁቀልን" — ክለባችን ብቁ አስኪያጅ ይፈልጋል',
   },
+  {
+    src: '/fan5.jpg',
+    caption: '"ስራአስኪያጅነት ቅጥር እንጂ ርስት አይደለም"',
+  },
+  {
+    src: '/fan6.jpg',
+    caption: '"አብዮት OUT" — ደጋፊዎች ድምፃቸውን አሰሙ',
+  },
 ]
 
 export default function FanGallery() {
