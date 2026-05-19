@@ -5,7 +5,7 @@ const photos = [
   },
   {
     src: '/fan2.jpg',
-    caption: '"ፋሲሊ ከነማ ሕይወታችን ነዉ"',
+    caption: '"ፋሲል ከነማ ሃይወታችን ነዉ"',
   },
   {
     src: '/fan3.jpg',
@@ -13,7 +13,7 @@ const photos = [
   },
   {
     src: '/fan4.jpg',
-    caption: '"ለማሰሪ ልቁቀልን" — ክለባችን ብቁ አስኪያጅ ይፈልጋል',
+    caption: '"ክለባችን የማሰሪ አሰራርቻን እንዲ የምበቃ ሃድ አያስፈልገዉም — ለማሰሪ ልቀቅልን"',
   },
   {
     src: '/fan5.jpg',
