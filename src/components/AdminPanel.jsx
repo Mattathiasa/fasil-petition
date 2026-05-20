@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-const ADMIN_PASSWORD = 'FasilKenema2024'
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? 'FasilKenema2024'
 
 function formatDate(ts) {
   if (!ts) return '—'

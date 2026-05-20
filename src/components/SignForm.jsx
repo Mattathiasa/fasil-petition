@@ -133,7 +133,7 @@ export default function SignForm() {
     >
       <div className="px-5 py-4" style={{ background: '#CC0000' }}>
         <p className="text-white font-black text-lg">✍️ ፊርማዎን ይስጡ</p>
-        <p className="text-red-200 text-xs mt-0.5">ስምዎ ብቻ ያስፈልጋል — 30 ሰከንድ ይወስዳል</p>
+        <p className="text-red-200 text-xs mt-0.5">ስም እና ኢሜይል ያስፈልጋል — 30 ሰከንድ ይወስዳል</p>
       </div>
 
       <form onSubmit={submit} className="p-5 space-y-4">
