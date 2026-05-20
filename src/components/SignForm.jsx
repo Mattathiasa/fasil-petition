@@ -50,9 +50,10 @@ export default function SignForm() {
 
       const batch = writeBatch(db)
 
-      // 1 — save signature (name stored for admin only; not shown publicly)
+      // 1 — save signature (name + email for admin only; not shown publicly)
       batch.set(doc(collection(db, 'signatures')), {
         name:      trimName,
+        email:     trimEmail,
         comment:   comment.trim() || null,
         createdAt: serverTimestamp(),
       })

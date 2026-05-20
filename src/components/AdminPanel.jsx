@@ -60,11 +60,11 @@ export default function AdminPanel() {
   }
 
   function exportCSV() {
-    const header = ['#', 'ሙሉ ስም', 'ስልክ ቁጥር', 'አስተያየት', 'ቀን/ሰዓት']
+    const header = ['#', 'ሙሉ ስም', 'ኢሜይል', 'አስተያየት', 'ቀን/ሰዓት']
     const rows = signatures.map((s, i) => [
       i + 1,
       s.name ?? '',
-      s.phone ?? '',
+      s.email ?? '',
       s.comment ?? '',
       s.createdAt ? s.createdAt.toDate().toISOString() : '',
     ])
@@ -98,7 +98,7 @@ export default function AdminPanel() {
 
   function copyAll() {
     const text = filtered
-      .map((s, i) => `${i + 1}. ${s.name}${s.phone ? ' | ' + s.phone : ''}${s.comment ? '\n   "' + s.comment + '"' : ''}`)
+      .map((s, i) => `${i + 1}. ${s.name}${s.email ? ' | ' + s.email : ''}${s.comment ? '\n   "' + s.comment + '"' : ''}`)
       .join('\n')
     navigator.clipboard.writeText(text)
     setCopied(true)
@@ -110,12 +110,12 @@ export default function AdminPanel() {
     const q = search.toLowerCase()
     return (
       s.name?.toLowerCase().includes(q) ||
-      s.phone?.includes(q) ||
+      s.email?.toLowerCase().includes(q) ||
       s.comment?.toLowerCase().includes(q)
     )
   })
 
-  const withPhone = signatures.filter((s) => s.phone).length
+  const withEmail = signatures.filter((s) => s.email).length
   const withComment = signatures.filter((s) => s.comment).length
 
   // ── Login screen ──────────────────────────────────────────────
@@ -217,7 +217,7 @@ export default function AdminPanel() {
         <div className="grid grid-cols-3 gap-3">
           {[
             { value: signatures.length, label: 'ጠቅላላ ፊርማዎች', color: '#fff' },
-            { value: withPhone, label: 'ስልክ ያለው', color: '#CC0000' },
+            { value: withEmail, label: 'ኢሜይል ያለው', color: '#CC0000' },
             { value: withComment, label: 'አስተያየት ያለው', color: '#4ade80' },
           ].map((s) => (
             <div
@@ -238,7 +238,7 @@ export default function AdminPanel() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 ፈልግ — ስም፣ ስልክ፣ ወይም አስተያየት..."
+          placeholder="🔍 ፈልግ — ስም፣ ኢሜይል፣ ወይም አስተያየት..."
           className="w-full rounded-xl px-4 py-3 text-white outline-none"
           style={{ background: '#111', border: '1px solid #2a2a2a' }}
         />
@@ -263,7 +263,7 @@ export default function AdminPanel() {
           >
             <span>#</span>
             <span>ሙሉ ስም</span>
-            <span>ስልክ</span>
+            <span>ኢሜይል</span>
             <span>አስተያየት</span>
             <span>ቀን / ሰዓት</span>
           </div>
@@ -291,7 +291,7 @@ export default function AdminPanel() {
                   <span className="text-gray-700 text-xs pt-0.5 tabular-nums">{i + 1}</span>
                   <span className="text-white font-semibold break-words">{s.name}</span>
                   <span className="text-gray-400 font-mono text-xs break-all">
-                    {s.phone || <span className="text-gray-700">—</span>}
+                    {s.email || <span className="text-gray-700">—</span>}
                   </span>
                   <span className="text-gray-400 text-xs leading-relaxed break-words">
                     {s.comment ? `"${s.comment}"` : <span className="text-gray-700">—</span>}
@@ -307,8 +307,8 @@ export default function AdminPanel() {
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-white font-bold text-sm">{s.name}</p>
-                      {s.phone && (
-                        <p className="text-gray-400 font-mono text-xs mt-0.5">{s.phone}</p>
+                      {s.email && (
+                        <p className="text-gray-400 font-mono text-xs mt-0.5">{s.email}</p>
                       )}
                       {s.comment && (
                         <p className="text-gray-400 text-xs mt-1 italic">"{s.comment}"</p>
