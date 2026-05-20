@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCount } from '../hooks/useCount'
 
-const GOAL = 10000
-const MILESTONES = [500, 1000, 2500, 5000, 10000]
+const GOAL = 20000
+const MILESTONES = [1000, 2500, 5000, 10000, 15000, 20000]
 
 function useCountUp(target, duration = 1000) {
   const [display, setDisplay] = useState(0)
@@ -62,21 +62,18 @@ export default function SignatureCounter() {
 
       <div className="p-5 space-y-4">
         {/* Big number */}
-        <div className="flex items-end justify-between">
-          <div>
-            {count === null ? (
-              <div className="h-16 w-32 rounded-lg animate-pulse" style={{ background: '#1e1e1e' }} />
-            ) : (
-              <p className="text-6xl font-black text-white tabular-nums leading-none">
-                {display.toLocaleString()}
-              </p>
-            )}
-            <p className="text-gray-500 text-sm mt-2">ደጋፊዎች ፈርመዋል</p>
-          </div>
-          <div className="text-right">
-            <p className="text-2xl font-black" style={{ color: '#CC0000' }}>{GOAL.toLocaleString()}</p>
-            <p className="text-gray-600 text-xs">ዒላማ</p>
-          </div>
+        <div>
+          {count === null ? (
+            <div className="h-16 w-48 rounded-lg animate-pulse" style={{ background: '#1e1e1e' }} />
+          ) : (
+            <p className="text-6xl font-black text-white tabular-nums leading-none">
+              {display.toLocaleString()}
+            </p>
+          )}
+          <p className="text-gray-400 text-sm mt-2">
+            ከ <span className="font-bold" style={{ color: '#CC0000' }}>{GOAL.toLocaleString()}</span> ድምፅ ውስጥ{' '}
+            <span className="text-white font-bold">{safeCount.toLocaleString()} ፈርመዋል</span>
+          </p>
         </div>
 
         {/* Progress bar */}
@@ -106,25 +103,41 @@ export default function SignatureCounter() {
           </div>
         </div>
 
-        {/* Share */}
-        <button
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({
-                title: 'ፋሲል ከተማ እግርኳስ ክለብ — አቶ አቢዮት ብርሃኑን ያንሱ',
-                text: `${safeCount.toLocaleString()} ደጋፊዎች ፈርመዋል! እርስዎም ይቀላቀሉ።`,
-                url: window.location.href,
-              })
-            } else {
-              navigator.clipboard.writeText(window.location.href)
-              alert('ሊንኩ ተቀድቷል!')
-            }
-          }}
-          className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-opacity hover:opacity-80"
-          style={{ background: '#1a1a1a', color: '#ccc', border: '1px solid #2a2a2a' }}
+        {/* Petition outcome note */}
+        <div
+          className="rounded-xl px-4 py-3 text-xs leading-relaxed"
+          style={{ background: 'rgba(204,0,0,0.08)', border: '1px solid rgba(204,0,0,0.2)', color: '#ccc' }}
         >
-          📤 ለጓደኞችዎ ያጋሩ
-        </button>
+          📋 <strong className="text-white">20,000 ፊርማ ሲሞላ</strong> ይህ አቤቱታ በቀጥታ ለጎንደር
+          ከተማ አስተዳደር እና ለክለቡ ቦርድ በይፋ ይሰጣል።
+        </div>
+
+        {/* Share buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const url  = encodeURIComponent(window.location.href)
+              const text = encodeURIComponent(`${safeCount.toLocaleString()} ደጋፊዎች ፈርመዋል! አቶ አቢዮት ብርሃኑ ከሃላፊነት ይነሱ — ፔቲሽኑን ይፈርሙ፣ ለሌሎችም ያጋሩ!`)
+              window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank')
+            }}
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-opacity hover:opacity-80"
+            style={{ background: '#0088cc22', color: '#4fc3f7', border: '1px solid #0088cc44' }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.4 13.93l-2.95-.924c-.64-.203-.658-.64.135-.953l11.566-4.46c.537-.194 1.006.131.743.628z"/></svg>
+            Telegram
+          </button>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href)
+              alert('ሊንኩ ለቲክቶክ ተቀድቷል!')
+            }}
+            className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-opacity hover:opacity-80"
+            style={{ background: '#1a1a1a', color: '#ccc', border: '1px solid #2a2a2a' }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.78a4.85 4.85 0 01-1.01-.09z"/></svg>
+            TikTok
+          </button>
+        </div>
       </div>
     </div>
   )

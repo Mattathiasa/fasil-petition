@@ -53,11 +53,19 @@ export default function App() {
       <MobileCTA />
 
       <footer
-        className="text-center py-10"
+        className="text-center py-12 px-4"
         style={{ borderTop: '1px solid #1a1a1a' }}
       >
-        <p className="text-white font-bold">ፋሲል ከተማ እግርኳስ ክለብ ከክለብም በላይ ነው 🇦🇹</p>
-        <p className="text-gray-600 text-xs mt-1">
+        <p
+          className="font-black text-lg sm:text-xl leading-relaxed mb-3"
+          style={{ color: '#CC0000' }}
+        >
+          መልካም ዕድል — ዘመን የማይሽረዉ ከፍታ ለጎንደሩ ጌጥ፣
+          <br />
+          ለአማራዉ ምልክት፣ ለአፄዎቹ አርማ — <span className="text-white">ፋሲል ከነማ!!!!</span>
+        </p>
+        <p className="text-gray-500 text-sm font-bold mb-1">ፋሲል ከተማ እግርኳስ ክለብ ከክለብም በላይ ነው 🇦🇹</p>
+        <p className="text-gray-700 text-xs">
           ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ · {new Date().getFullYear()}
         </p>
       </footer>

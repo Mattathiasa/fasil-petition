@@ -1,48 +1,76 @@
 import { useEffect, useState } from 'react'
 import {
-  collection, doc, writeBatch, serverTimestamp, increment,
+  collection, doc, getDoc, writeBatch, serverTimestamp, increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
+function emailKey(email) {
+  return `fasil_petition_signed_${email.toLowerCase().trim()}`
+}
+
 export default function SignForm() {
   const [name, setName]       = useState('')
-  const [phone, setPhone]     = useState('')
+  const [email, setEmail]     = useState('')
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
   const [done, setDone]       = useState(false)
 
   useEffect(() => {
+    // legacy single-key check (keeps already-signed users in done state)
     if (localStorage.getItem('fasil_petition_signed')) setDone(true)
   }, [])
 
   async function submit(e) {
     e.preventDefault()
-    const trimName = name.trim()
-    if (!trimName) { setError('ሙሉ ስምዎን ያስገቡ።'); return }
+    const trimName  = name.trim()
+    const trimEmail = email.toLowerCase().trim()
+    if (!trimName)  { setError('ሙሉ ስምዎን ያስገቡ።'); return }
+    if (!trimEmail) { setError('ኢሜይልዎን ያስገቡ።'); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimEmail)) {
+      setError('ትክክለኛ ኢሜይል ያስገቡ።'); return
+    }
+
+    // cross-device duplicate check via localStorage cache
+    if (localStorage.getItem(emailKey(trimEmail))) {
+      setDone(true); return
+    }
 
     setLoading(true)
     setError('')
 
     try {
+      // server-side duplicate check
+      const emailDoc = await getDoc(doc(db, 'signed_emails', trimEmail))
+      if (emailDoc.exists()) {
+        localStorage.setItem(emailKey(trimEmail), '1')
+        setDone(true)
+        return
+      }
+
       const batch = writeBatch(db)
 
-      // 1 — save signature
+      // 1 — save signature (name stored for admin only; not shown publicly)
       batch.set(doc(collection(db, 'signatures')), {
         name:      trimName,
-        phone:     phone.trim()   || null,
         comment:   comment.trim() || null,
         createdAt: serverTimestamp(),
       })
 
-      // 2 — atomic counter increment (creates doc if missing via merge)
+      // 2 — email lock (prevents duplicate across devices)
+      batch.set(doc(db, 'signed_emails', trimEmail), {
+        createdAt: serverTimestamp(),
+      })
+
+      // 3 — atomic counter increment
       batch.set(
         doc(db, 'stats', 'count'),
         { total: increment(1) },
         { merge: true }
       )
 
-      await batch.commit()                          // both save or both fail
+      await batch.commit()
+      localStorage.setItem(emailKey(trimEmail), '1')
       localStorage.setItem('fasil_petition_signed', '1')
       setDone(true)
     } catch (err) {
@@ -61,7 +89,7 @@ export default function SignForm() {
   function share() {
     if (navigator.share) {
       navigator.share({
-        title: 'ፋሲል ከተማ እግርኳስ ክለብ — አቶ አቢዮት ብርሃኑን ያንሱ',
+        title: 'ፋሲል ከተማ እግርኳስ ክለብ — አቶ አቢዮት ብርሃኑ ከሃላፊነት ይነሱ',
         text:  'ፋሲል ከተማ እግርኳስ ክለብን ለማዳን ፊርማዎን ይስጡ!',
         url:   window.location.href,
       })
@@ -118,12 +146,13 @@ export default function SignForm() {
           />
         </Field>
 
-        <Field label="ስልክ ቁጥር" hint="አማራጭ">
+        <Field label="ኢሜይል" required>
           <Input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+251 9xx xxx xxx"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="abebe@example.com"
+            autoComplete="email"
           />
         </Field>
 
@@ -162,7 +191,7 @@ export default function SignForm() {
         </button>
 
         <p className="text-gray-700 text-xs text-center">
-          🔒 ስምዎ ለሕዝብ ይታያል
+          🔒 ስምዎ ለሕዝብ አይታይም — ፊርማዎ ይጠበቃል
         </p>
       </form>
     </div>

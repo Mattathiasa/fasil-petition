@@ -61,13 +61,14 @@ export default function Hero() {
               ፋሲል ከተማ እግርኳስ ክለብ · ባህር ዳር · ከ1968 ዓ.ም
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
-              አቶ አቢዮት ብርሃኑን
+              አቶ አቢዮት ብርሃኑ
               <br />
-              <span style={{ color: '#CC0000' }}>ከስራ ያንሱ!</span>
+              <span style={{ color: '#CC0000' }}>ከሃላፊነት ይነሱ!</span>
             </h1>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-2xl">
-              ለ56 ዓመት ታሪክ ያለው ፋሲል ከተማ እግርኳስ ክለብ ብቁ አመራር ይፈልጋል።
-              ይህ ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ ቀርቧል።
+              የ56 ዓመት ታሪክና ክብር ያለው ፋሲል ከተማ እግርኳስ ክለብ፣ ካለበት የአመራር ብቃት ማነስ እና
+              የውጤት ማሽቆልቆል ለመታደግ የደጋፊው አንድነት የሚያስፈልግበት ወሳኝ ሰዓት ላይ እንገኛለን።
+              ይህ ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ እና ለክለቡ የበላይ አመራሮች የሚቀርብ ነው።
             </p>
           </div>
 

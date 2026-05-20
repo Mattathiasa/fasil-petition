@@ -8,6 +8,18 @@ export default function PetitionLetter() {
       </div>
 
       <div className="p-6 sm:p-8 space-y-5 text-base sm:text-lg leading-loose">
+        {/* Emotional opening */}
+        <p className="text-gray-200">
+          የ56 ዓመት ታላቅ ታሪክና ክብር ያለው የፋሲል ከተማ እግርኳስ ክለብ፣ በአሁኑ ሰዓት ካለበት የአመራር ብቃት ማነስ
+          እና የውጤት ማሽቆልቆል ለመታደግ የደጋፊው አንድነት የሚያስፈልግበት ወሳኝ ሰዓት ላይ እንገኛለን።
+        </p>
+
+        <p className="text-gray-200">
+          ይህ የደጋፊዎች ድምፅ ማሰባሰቢያ (Petition) ለጎንደር ከተማ ክቡር ከንቲባ እና ለክለቡ የበላይ አመራሮች
+          የሚቀርብ ሲሆን፤ የአሁኑ ስራ አስኪያጅ አቶ አቢዮት ብርሃኑ ከሃላፊነታቸው ተነስተው ክለቡን የሚመጥን
+          ብቁ አመራር እንዲተካ ይጠይቃል።
+        </p>
+
         {/* Addressee */}
         <p className="text-white font-black text-xl sm:text-2xl">
           ለጎንደር ከተማ ክቡር ከንቲባ❗️
@@ -52,6 +64,10 @@ export default function PetitionLetter() {
         </p>
 
         <p className="font-black text-xl" style={{ color: '#CC0000' }}>
+          የክለባችን ክብር ይመለስ! አሁኑኑ ይፈረሙ፣ ለሌሎችም ያጋሩ!
+        </p>
+
+        <p className="font-black text-lg text-white">
           ፋሲል ከተማ እግርኳስ ክለብ ከክለብም በላይ ነው 🇦🇹
         </p>
       </div>

@@ -40,15 +40,15 @@ function timeAgo(ts) {
   return `ከ${months} ወር በፊት`
 }
 
-function Avatar({ name }) {
-  const ch  = [...(name ?? '?')]
-  const hue = ch.reduce((a, c) => a + c.charCodeAt(0), 0) % 360
+function Avatar({ index }) {
+  const hues = [0, 30, 200, 270, 140, 60]
+  const hue  = hues[index % hues.length]
   return (
     <div
       className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
       style={{ background: `hsl(${hue},55%,32%)`, border: '2px solid rgba(255,255,255,0.08)' }}
     >
-      {(name ?? '?')[0].toUpperCase()}
+      ✓
     </div>
   )
 }
@@ -104,10 +104,10 @@ export default function RecentSigners() {
               className="flex gap-3 items-start px-5 py-3.5 transition-colors hover:bg-white/[0.02]"
               style={{ borderTop: i > 0 ? '1px solid #1a1a1a' : 'none' }}
             >
-              <Avatar name={s.name} />
+              <Avatar index={i} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-white font-semibold text-sm leading-tight">{s.name}</span>
+                  <span className="text-gray-400 font-semibold text-sm leading-tight">ደጋፊ</span>
                   {i === 0 && (
                     <span
                       className="text-xs px-1.5 py-px rounded font-semibold"
