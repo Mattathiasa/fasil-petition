@@ -64,7 +64,7 @@ export default function App() {
           <br />
           ለአማራዉ ምልክት፣ ለአፄዎቹ አርማ — <span className="text-white">ፋሲል ከነማ!!!!</span>
         </p>
-        <p className="text-gray-500 text-sm font-bold mb-1">ፋሲል ከተማ እግርኳስ ክለብ ከክለብም በላይ ነው 🇦🇹</p>
+        <p className="text-gray-500 text-sm font-bold mb-1">ፋሲል ከነማ እግርኳስ ክለብ ከክለብም በላይ ነው 🇦🇹</p>
         <p className="text-gray-700 text-xs">
           ፔቲሽን ለጎንደር ከተማ ክቡር ከንቲባ · {new Date().getFullYear()}
         </p>

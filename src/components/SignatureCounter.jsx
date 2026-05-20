@@ -129,7 +129,7 @@ export default function SignatureCounter() {
           <button
             onClick={async () => {
               const shareData = {
-                title: 'ፋሲል ከተማ እግርኳስ ክለብ — ፔቲሽን',
+                title: 'ፋሲል ከነማ እግርኳስ ክለብ — ፔቲሽን',
                 text: `${safeCount.toLocaleString()} ደጋፊዎች ፈርመዋል! 👊🔴 አቶ አቢዮት ብርሃኑ ከሃላፊነት ይነሱ — ፋሲል ከነማ ደጋፊ ሁሉ ይፈርሙ፣ ያጋሩ!\n`,
                 url: window.location.href,
               }

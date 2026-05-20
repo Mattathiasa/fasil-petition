@@ -89,8 +89,8 @@ export default function SignForm() {
   function share() {
     if (navigator.share) {
       navigator.share({
-        title: 'ፋሲል ከተማ እግርኳስ ክለብ — አቶ አቢዮት ብርሃኑ ከሃላፊነት ይነሱ',
-        text:  'ፋሲል ከተማ እግርኳስ ክለብን ለማዳን ፊርማዎን ይስጡ!',
+        title: 'ፋሲል ከነማ እግርኳስ ክለብ — አቶ አቢዮት ብርሃኑ ከሃላፊነት ይነሱ',
+        text:  'ፋሲል ከነማ እግርኳስ ክለብን ለማዳን ፊርማዎን ይስጡ!',
         url:   window.location.href,
       })
     } else {
@@ -110,7 +110,7 @@ export default function SignForm() {
         <p className="text-5xl">🎉</p>
         <div>
           <p className="text-white font-black text-xl">ፊርማዎ ተመዝግቧል!</p>
-          <p className="text-gray-400 text-sm mt-1">ለፋሲል ከተማ እግርኳስ ክለብ ደጋፊነትዎን አሳይተዋል።</p>
+          <p className="text-gray-400 text-sm mt-1">ለፋሲል ከነማ እግርኳስ ክለብ ደጋፊነትዎን አሳይተዋል።</p>
         </div>
         <button
           onClick={share}
@@ -160,7 +160,7 @@ export default function SignForm() {
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="ለፋሲል ከተማ እግርኳስ ክለብ ያለዎን ፍቅር ያካፍሉ..."
+            placeholder="ለፋሲል ከነማ እግርኳስ ክለብ ያለዎን ፍቅር ያካፍሉ..."
             rows={3}
             className="w-full rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 outline-none resize-none transition-colors"
             style={{ background: '#181818', border: '1.5px solid #2a2a2a' }}
