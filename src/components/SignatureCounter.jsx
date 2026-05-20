@@ -127,9 +127,19 @@ export default function SignatureCounter() {
             Telegram
           </button>
           <button
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href)
-              alert('ሊንኩ ለቲክቶክ ተቀድቷል!')
+            onClick={async () => {
+              const shareData = {
+                title: 'ፋሲል ከተማ እግርኳስ ክለብ — ፔቲሽን',
+                text: `${safeCount.toLocaleString()} ደጋፊዎች ፈርመዋል! 👊🔴 አቶ አቢዮት ብርሃኑ ከሃላፊነት ይነሱ — ፋሲል ከነማ ደጋፊ ሁሉ ይፈርሙ፣ ያጋሩ!\n`,
+                url: window.location.href,
+              }
+              if (navigator.share && navigator.canShare?.(shareData)) {
+                await navigator.share(shareData)
+              } else {
+                const caption = `${shareData.text}${window.location.href}`
+                await navigator.clipboard.writeText(caption)
+                alert('ሊንኩ እና caption ተቀድቷል — TikTok ላይ paste አድርጉ!')
+              }
             }}
             className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-opacity hover:opacity-80"
             style={{ background: '#1a1a1a', color: '#ccc', border: '1px solid #2a2a2a' }}
