@@ -55,7 +55,7 @@ function Avatar({ index }) {
 
 export default function RecentSigners() {
   useTick()                              // keeps all timestamps fresh
-  const { signers, status } = useSigners(30)
+  const { signers, status } = useSigners(5)
 
   return (
     <div className="rounded-2xl overflow-hidden" style={{ background: '#111', border: '1px solid #1e1e1e' }}>
