@@ -11,7 +11,31 @@ import RecentSigners  from './components/RecentSigners'
 import MobileCTA      from './components/MobileCTA'
 import { useCount }   from './hooks/useCount'
 
-const isAdmin = window.location.pathname === '/admin'
+function NotFound() {
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4 text-center"
+      style={{ background: '#0a0a0a', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+    >
+      <p className="text-6xl mb-6">🔍</p>
+      <h1 className="text-white font-black text-3xl mb-3">ይህ ገጽ አልተገኘም</h1>
+      <p className="text-gray-500 text-sm mb-8 max-w-md">
+        የፈለጉት ገጽ አለመኖሩ ይሆናል። እባክዎን ለንክ ይፈትሹ ወይም ወደ ዋና ገጽ ይመለሱ።
+      </p>
+      <a
+        href="/"
+        className="px-6 py-3 rounded-xl text-white font-bold transition-opacity hover:opacity-90"
+        style={{ background: '#CC0000' }}
+      >
+        ወደ ዋና ገጽ ተመለስ
+      </a>
+    </div>
+  )
+}
+
+const path = window.location.pathname
+const isAdmin = path === '/admin'
+const is404 = !isAdmin && path !== '/'
 
 function PetitionPage() {
   const { count } = useCount()
@@ -83,5 +107,6 @@ function PetitionPage() {
 
 export default function App() {
   if (isAdmin) return <AdminPanel />
+  if (is404) return <NotFound />
   return <PetitionPage />
 }
