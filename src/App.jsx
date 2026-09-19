@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import AdminPanel    from './components/AdminPanel'
 import Hero          from './components/Hero'
 import SignatureCounter from './components/SignatureCounter'
@@ -8,11 +9,18 @@ import ProblemsSection from './components/ProblemsSection'
 import ReasonsSection from './components/ReasonsSection'
 import RecentSigners  from './components/RecentSigners'
 import MobileCTA      from './components/MobileCTA'
+import { useCount }   from './hooks/useCount'
 
 const isAdmin = window.location.pathname === '/admin'
 
-export default function App() {
-  if (isAdmin) return <AdminPanel />
+function PetitionPage() {
+  const { count } = useCount()
+
+  useEffect(() => {
+    if (count !== null) {
+      document.title = `${count.toLocaleString()} ፊርማዎች — ፋሲል ከነማ ፔቲሽን`
+    }
+  }, [count])
 
   return (
     <div
@@ -71,4 +79,9 @@ export default function App() {
       </footer>
     </div>
   )
+}
+
+export default function App() {
+  if (isAdmin) return <AdminPanel />
+  return <PetitionPage />
 }
