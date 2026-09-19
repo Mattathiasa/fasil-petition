@@ -111,6 +111,43 @@ stats/
   └── count → { total: number }   — Atomic counter
 ```
 
+## Firestore security rules
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Signatures — anyone can create, nobody can edit/delete
+    match /signatures/{sig} {
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'createdAt'])
+                    && request.resource.data.name is string
+                    && request.resource.data.email is string;
+      allow read:   if true;   // public feed + admin reads
+      allow update, delete: if false;
+    }
+
+    // Email lock — write-once, no reads from client
+    match /signed_emails/{email} {
+      allow create: if request.resource.data.keys().hasAll(['createdAt']);
+      allow read, update, delete: if false;
+    }
+
+    // Stats counter — only via admin SDK (Cloud Functions)
+    match /stats/{doc} {
+      allow read:   if true;
+      allow write:  if false;  // incremented server-side only
+    }
+  }
+}
+```
+
+These rules mean:
+- **Anyone** can submit a signature (name + email + timestamp required)
+- **Nobody** can edit or delete signatures from the client
+- **Email lock** documents are write-once — the client can't read them back to check duplicates (prevents enumeration)
+- **Stats counter** can only be read by clients — all writes happen via Firebase Admin SDK in Cloud Functions or the admin recount tool
+
 ## Deployment
 
 Push to `main` and Vercel auto-deploys. The `vercel.json` rewrites all routes

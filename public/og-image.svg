@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1c0000"/>
+      <stop offset="50%" style="stop-color:#0f0000"/>
+      <stop offset="100%" style="stop-color:#0a0a0a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" style="stop-color:rgba(204,0,0,0.3)"/>
+      <stop offset="100%" style="stop-color:transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Red accent bar -->
+  <rect x="0" y="0" width="1200" height="6" fill="#CC0000"/>
+
+  <!-- Crest circle -->
+  <circle cx="600" cy="180" r="70" fill="none" stroke="#CC0000" stroke-width="3"/>
+  <circle cx="600" cy="180" r="65" fill="#1a0000"/>
+  <text x="600" y="172" text-anchor="middle" font-family="serif" font-size="28" font-weight="bold" fill="#CC0000">ፋሲል</text>
+  <text x="600" y="202" text-anchor="middle" font-family="serif" font-size="20" fill="#ffffff">ከነማ</text>
+
+  <!-- Club name -->
+  <text x="600" y="300" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#888" letter-spacing="6" font-weight="bold">ፋሲል ከነማ እግርኳስ ክለብ</text>
+
+  <!-- Main headline -->
+  <text x="600" y="370" text-anchor="middle" font-family="sans-serif" font-size="52" font-weight="900" fill="#ffffff">አቶ አቢዮት ብርሃኑ</text>
+  <text x="600" y="430" text-anchor="middle" font-family="sans-serif" font-size="52" font-weight="900" fill="#CC0000">ከሃላፊነት ይነሱ!</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="490" text-anchor="middle" font-family="sans-serif" font-size="20" fill="#888">ፔቲሽን — ፊርማዎን ይስጡ</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="580" width="1200" height="50" fill="rgba(0,0,0,0.5)"/>
+  <text x="600" y="612" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#666">fasil-petition.vercel.app</text>
+</svg>
