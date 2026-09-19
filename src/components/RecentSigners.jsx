@@ -40,7 +40,12 @@ function timeAgo(ts) {
   return `ከ${months} ወር በፊት`
 }
 
-function Avatar({ index }) {
+function getInitial(name) {
+  if (!name) return '✓'
+  return name.charAt(0).toUpperCase()
+}
+
+function Avatar({ name, index }) {
   const hues = [0, 30, 200, 270, 140, 60]
   const hue  = hues[index % hues.length]
   return (
@@ -48,9 +53,16 @@ function Avatar({ index }) {
       className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
       style={{ background: `hsl(${hue},55%,32%)`, border: '2px solid rgba(255,255,255,0.08)' }}
     >
-      ✓
+      {getInitial(name)}
     </div>
   )
+}
+
+function getDisplayName(name, city) {
+  if (!name) return 'ደጋፊ'
+  const initial = name.charAt(0)
+  if (city) return `${initial}. ደጋፊከ ${city}`
+  return `${initial}. ደጋፊ`
 }
 
 export default function RecentSigners() {
@@ -104,10 +116,12 @@ export default function RecentSigners() {
               className="flex gap-3 items-start px-5 py-3.5 transition-colors hover:bg-white/[0.02]"
               style={{ borderTop: i > 0 ? '1px solid #1a1a1a' : 'none' }}
             >
-              <Avatar index={i} />
+              <Avatar name={s.name} index={i} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-gray-400 font-semibold text-sm leading-tight">ደጋፊ</span>
+                  <span className="text-gray-400 font-semibold text-sm leading-tight">
+                    {getDisplayName(s.name, s.city)}
+                  </span>
                   {i === 0 && (
                     <span
                       className="text-xs px-1.5 py-px rounded font-semibold"
