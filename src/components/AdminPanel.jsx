@@ -60,11 +60,12 @@ export default function AdminPanel() {
   }
 
   function exportCSV() {
-    const header = ['#', 'ሙሉ ስም', 'ኢሜይል', 'አስተያየት', 'ቀን/ሰዓት']
+    const header = ['#', 'ሙሉ ስም', 'ኢሜይል', 'ከተማ', 'አስተያየት', 'ቀን/ሰዓት']
     const rows = signatures.map((s, i) => [
       i + 1,
       s.name ?? '',
       s.email ?? '',
+      s.city ?? '',
       s.comment ?? '',
       s.createdAt ? s.createdAt.toDate().toISOString() : '',
     ])
@@ -98,7 +99,7 @@ export default function AdminPanel() {
 
   function copyAll() {
     const text = filtered
-      .map((s, i) => `${i + 1}. ${s.name}${s.email ? ' | ' + s.email : ''}${s.comment ? '\n   "' + s.comment + '"' : ''}`)
+      .map((s, i) => `${i + 1}. ${s.name}${s.city ? ' · ' + s.city : ''}${s.email ? ' | ' + s.email : ''}${s.comment ? '\n   "' + s.comment + '"' : ''}`)
       .join('\n')
     navigator.clipboard.writeText(text)
     setCopied(true)
@@ -257,13 +258,14 @@ export default function AdminPanel() {
             className="hidden sm:grid text-xs font-bold text-gray-600 uppercase tracking-wider px-5 py-3"
             style={{
               background: '#181818',
-              gridTemplateColumns: '44px 1fr 150px 1fr 155px',
+              gridTemplateColumns: '44px 1fr 150px 100px 1fr 155px',
               borderBottom: '1px solid #1e1e1e',
             }}
           >
             <span>#</span>
             <span>ሙሉ ስም</span>
             <span>ኢሜይል</span>
+            <span>ከተማ</span>
             <span>አስተያየት</span>
             <span>ቀን / ሰዓት</span>
           </div>
@@ -286,12 +288,15 @@ export default function AdminPanel() {
                 {/* Desktop row */}
                 <div
                   className="hidden sm:grid items-start px-5 py-3 gap-3 text-sm"
-                  style={{ gridTemplateColumns: '44px 1fr 150px 1fr 155px' }}
+                  style={{ gridTemplateColumns: '44px 1fr 150px 100px 1fr 155px' }}
                 >
                   <span className="text-gray-700 text-xs pt-0.5 tabular-nums">{i + 1}</span>
                   <span className="text-white font-semibold break-words">{s.name}</span>
                   <span className="text-gray-400 font-mono text-xs break-all">
                     {s.email || <span className="text-gray-700">—</span>}
+                  </span>
+                  <span className="text-gray-400 text-xs break-words">
+                    {s.city || <span className="text-gray-700">—</span>}
                   </span>
                   <span className="text-gray-400 text-xs leading-relaxed break-words">
                     {s.comment ? `"${s.comment}"` : <span className="text-gray-700">—</span>}
@@ -309,6 +314,9 @@ export default function AdminPanel() {
                       <p className="text-white font-bold text-sm">{s.name}</p>
                       {s.email && (
                         <p className="text-gray-400 font-mono text-xs mt-0.5">{s.email}</p>
+                      )}
+                      {s.city && (
+                        <p className="text-gray-500 text-xs mt-0.5">📍 {s.city}</p>
                       )}
                       {s.comment && (
                         <p className="text-gray-400 text-xs mt-1 italic">"{s.comment}"</p>

@@ -11,6 +11,7 @@ function emailKey(email) {
 export default function SignForm() {
   const [name, setName]       = useState('')
   const [email, setEmail]     = useState('')
+  const [city, setCity]       = useState('')
   const [comment, setComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
@@ -54,6 +55,7 @@ export default function SignForm() {
       batch.set(doc(collection(db, 'signatures')), {
         name:      trimName,
         email:     trimEmail,
+        city:      city.trim() || null,
         comment:   comment.trim() || null,
         createdAt: serverTimestamp(),
       })
@@ -154,6 +156,15 @@ export default function SignForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="abebe@example.com"
             autoComplete="email"
+          />
+        </Field>
+
+        <Field label="ከየት ከተማ ነዎት?" hint="አማራጭ">
+          <Input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="ለምሳሌ፦ ጎንደር"
           />
         </Field>
 
