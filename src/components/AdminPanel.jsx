@@ -116,11 +116,13 @@ export default function AdminPanel() {
     return (
       s.name?.toLowerCase().includes(q) ||
       s.email?.toLowerCase().includes(q) ||
+      s.city?.toLowerCase().includes(q) ||
       s.comment?.toLowerCase().includes(q)
     )
   })
 
   const withEmail = signatures.filter((s) => s.email).length
+  const withCity = signatures.filter((s) => s.city).length
   const withComment = signatures.filter((s) => s.comment).length
 
   // ── Login screen ──────────────────────────────────────────────
@@ -219,10 +221,11 @@ export default function AdminPanel() {
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-5">
         {/* Stats cards */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { value: signatures.length, label: 'ጠቅላላ ፊርማዎች', color: '#fff' },
             { value: withEmail, label: 'ኢሜይል ያለው', color: '#CC0000' },
+            { value: withCity, label: 'ከተማ ያለው', color: '#4fc3f7' },
             { value: withComment, label: 'አስተያየት ያለው', color: '#4ade80' },
           ].map((s) => (
             <div
@@ -243,7 +246,7 @@ export default function AdminPanel() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="🔍 ፈልግ — ስም፣ ኢሜይል፣ ወይም አስተያየት..."
+          placeholder="🔍 ፈልግ — ስም፣ ኢሜይል፣ ከተማ፣ ወይም አስተያየት..."
           className="w-full rounded-xl px-4 py-3 text-white outline-none"
           style={{ background: '#111', border: '1px solid #2a2a2a' }}
         />
