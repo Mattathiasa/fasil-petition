@@ -61,7 +61,7 @@ function Avatar({ name, index }) {
 function getDisplayName(name, city) {
   if (!name) return 'ደጋፊ'
   const initial = name.charAt(0)
-  if (city) return `${initial}. ደጋፊከ ${city}`
+  if (city) return `${initial}. ደጋፊ ከ${city}`
   return `${initial}. ደጋፊ`
 }
 
