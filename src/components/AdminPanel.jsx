@@ -10,7 +10,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? 'FasilKenema2024'
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
 
 function formatDate(ts) {
   if (!ts) return '—'
@@ -45,6 +45,10 @@ export default function AdminPanel() {
   }, [authed])
 
   function login() {
+    if (!ADMIN_PASSWORD) {
+      setPwError('የአድሚን የይለፍ ቃል አልተ퀭ነም — VITE_ADMIN_PASSWORD ያስቀምጡ')
+      return
+    }
     if (pw === ADMIN_PASSWORD) {
       sessionStorage.setItem('fasil_admin', '1')
       setAuthed(true)
