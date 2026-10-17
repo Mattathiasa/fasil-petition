@@ -33,6 +33,9 @@ function initialOf(name) {
   return (name ?? '').trim().charAt(0) || '✓'
 }
 
+const PUBLIC_KEYS = new Set(['nameInitial', 'city', 'comment', 'createdAt'])
+const IDENTITY_KEYS = new Set(['name', 'email'])
+
 requireServiceAccount()
 initializeApp({ credential: applicationDefault(), projectId: projectId() })
 const db = getFirestore()
@@ -89,14 +92,24 @@ const backup = docs.map((d) => {
     email: data.email ?? null,
     city: data.city ?? null,
     comment: data.comment ?? null,
+    phone: data.phone ?? null,
     createdAtISO: data.createdAt?.toDate?.().toISOString() ?? null,
     nameInitial: data.nameInitial ?? null,
+    raw: data,
   }
 })
 writeFileSync(backupFile, JSON.stringify(backup, null, 2))
 console.log(`\nBackup written: ${backupFile.pathname}`)
 
-// ── Migrate in batches (2 writes per doc, 400 ops per batch) ────────
+// ── Migrate in batches (2-3 writes per doc, 400 ops per batch) ──────
+// Prefetch existing email locks so we never overwrite one.
+const existingLocks = new Set()
+{
+  const locks = await db.collection('signed_emails').get()
+  locks.forEach((d) => existingLocks.add(d.id))
+}
+console.log(`  email locks already present: ${existingLocks.size.toLocaleString()}`)
+
 const DOCS_PER_BATCH = 200
 let done = 0
 let failures = 0
@@ -106,6 +119,12 @@ for (let i = 0; i < legacy.length; i += DOCS_PER_BATCH) {
   const batch = db.batch()
 
   for (const { id, data } of chunk) {
+    // Fields outside the public schema (phone, …) ride along to the private doc.
+    const extra = {}
+    for (const [k, v] of Object.entries(data)) {
+      if (!PUBLIC_KEYS.has(k) && !IDENTITY_KEYS.has(k) && v !== undefined) extra[k] = v
+    }
+
     // identity copy — same document id as the public doc
     batch.set(db.collection('signatures_private').doc(id), {
       name: data.name ?? '',
@@ -113,17 +132,30 @@ for (let i = 0; i < legacy.length; i += DOCS_PER_BATCH) {
       city: data.city ?? null,
       comment: data.comment ?? null,
       createdAt: data.createdAt ?? FieldValue.delete(),
+      ...extra,
     })
 
-    // public doc — keep display fields, add initial, strip PII
+    // public doc — keep display fields, add initial, strip every other key
+    const strip = {}
+    for (const k of Object.keys(data)) {
+      if (!PUBLIC_KEYS.has(k)) strip[k] = FieldValue.delete()
+    }
     batch.update(db.collection('signatures').doc(id), {
       nameInitial: initialOf(data.name),
-      name: FieldValue.delete(),
-      email: FieldValue.delete(),
+      ...strip,
       city: data.city ?? null,
       comment: data.comment ?? null,
       ...(data.createdAt ? {} : { createdAt: FieldValue.delete() }),
     })
+
+    // write-once email lock for the duplicate guard (skipped if present)
+    const email = (data.email ?? '').trim().toLowerCase()
+    if (email && !existingLocks.has(email)) {
+      batch.create(db.collection('signed_emails').doc(email), {
+        createdAt: data.createdAt ?? FieldValue.serverTimestamp(),
+      })
+      existingLocks.add(email)
+    }
   }
 
   try {
