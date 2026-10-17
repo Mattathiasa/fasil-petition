@@ -9,6 +9,7 @@ import ReasonsSection from './components/ReasonsSection'
 import RecentSigners  from './components/RecentSigners'
 import MobileCTA      from './components/MobileCTA'
 import { CountProvider, useCount } from './context/CountContext'
+import { getRoute } from './lib/routes'
 
 function NotFound() {
   return (
@@ -34,9 +35,7 @@ function NotFound() {
 
 const AdminPanel = lazy(() => import('./components/AdminPanel'))
 
-const path = window.location.pathname
-const isAdmin = path === '/admin'
-const is404 = !isAdmin && path !== '/'
+const route = getRoute(window.location.pathname)
 
 function RouteFallback() {
   return (
@@ -121,14 +120,14 @@ function PetitionPage() {
 }
 
 export default function App() {
-  if (isAdmin) {
+  if (route === 'admin') {
     return (
       <Suspense fallback={<RouteFallback />}>
         <AdminPanel />
       </Suspense>
     )
   }
-  if (is404) return <NotFound />
+  if (route === 'notFound') return <NotFound />
   return (
     <CountProvider>
       <PetitionPage />
