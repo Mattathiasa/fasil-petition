@@ -1,0 +1,121 @@
+rules_version = '2';
+
+// Firestore security rules — the source of truth for access control.
+// Deploy with:  firebase deploy --only firestore:rules
+//
+// Deployment order (important):
+//   1. Deploy the site (new clients write the doc shapes below)
+//   2. Deploy these rules
+//   3. Run `npm run migrate:apply` to move legacy docs into the split model
+//   4. Run `npm run admin:grant -- <admin-email>` once per admin
+//
+// Design notes:
+//   * Public and private data live in separate collections because Firestore
+//     rules cannot filter individual fields on read. The public feed never
+//     contains a full name or an email address.
+//   * The signature counter is incremented atomically by the client
+//     (+1 per signature, enforced by the rules), so no Cloud Functions or
+//     Blaze plan are required. Only an admin may set it to an arbitrary value
+//     (the recount tool).
+//   * signed_emails is write-once: `get` (lookup of a known address) is
+//     allowed for the duplicate check, `list` (enumeration) never is.
+//   * Nobody — not even an admin — can edit or delete recorded signatures.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Custom claim set by scripts/grant-admin.mjs (Admin SDK).
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function isString(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    function optionalString(v, max) {
+      return v == null || (v is string && v.size() <= max);
+    }
+
+    function isServerTime(ts) {
+      return ts == request.time;
+    }
+
+    function isEmail(s) {
+      return s is string && s.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
+    function validPublicSignature() {
+      return request.resource.data.keys().hasOnly(['nameInitial', 'city', 'comment', 'createdAt'])
+        && request.resource.data.keys().hasAll(['nameInitial', 'createdAt'])
+        && isString(request.resource.data.nameInitial, 1, 8)
+        && optionalString(request.resource.data.city, 60)
+        && optionalString(request.resource.data.comment, 500)
+        && isServerTime(request.resource.data.createdAt);
+    }
+
+    function validPrivateSignature() {
+      return request.resource.data.keys().hasOnly(['name', 'email', 'city', 'comment', 'createdAt'])
+        && request.resource.data.keys().hasAll(['name', 'email', 'createdAt'])
+        && isString(request.resource.data.name, 1, 100)
+        && isEmail(request.resource.data.email)
+        && optionalString(request.resource.data.city, 60)
+        && optionalString(request.resource.data.comment, 500)
+        && isServerTime(request.resource.data.createdAt);
+    }
+
+    // ── Public feed: display-only data (initial, city, comment) ──
+    match /signatures/{sigId} {
+      allow create: if validPublicSignature();
+      allow read: if true;
+      allow update, delete: if false;
+    }
+
+    // ── Identity data: full name + email, admin eyes only ────────
+    match /signatures_private/{sigId} {
+      allow create: if validPrivateSignature();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // ── Email lock: write-once duplicate guard ───────────────────
+    match /signed_emails/{email} {
+      allow create: if isEmail(email)
+        && request.resource.data.keys().hasOnly(['createdAt'])
+        && isServerTime(request.resource.data.createdAt);
+      allow get: if true;
+      allow list, update, delete: if false;
+    }
+
+    // ── Atomic signature counter ─────────────────────────────────
+    match /stats/count {
+      allow read: if true;
+
+      allow create: if isAdmin() || (
+        request.resource.data.keys().hasOnly(['total'])
+        && request.resource.data.total is int
+        && request.resource.data.total == 1
+      );
+
+      // Client path: exactly +1, no other field touched or added.
+      allow update: if isAdmin() || (
+        resource.data.total is int
+        && request.resource.data.total is int
+        && request.resource.data.total == resource.data.total + 1
+        && request.resource.data.keys().hasAll(resource.data.keys())
+        && request.resource.data.keys().size() == resource.data.keys().size()
+      );
+
+      allow delete: if false;
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

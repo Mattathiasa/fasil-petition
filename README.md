@@ -113,40 +113,21 @@ stats/
 
 ## Firestore security rules
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+The rules live in [`firestore.rules`](./firestore.rules) — that file is the
+source of truth (the previous inline copy here had drifted from the code).
+Deploy with `firebase deploy --only firestore:rules`.
 
-    // Signatures — anyone can create, nobody can edit/delete
-    match /signatures/{sig} {
-      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'createdAt'])
-                    && request.resource.data.name is string
-                    && request.resource.data.email is string;
-      allow read:   if true;   // public feed + admin reads
-      allow update, delete: if false;
-    }
-
-    // Email lock — write-once, no reads from client
-    match /signed_emails/{email} {
-      allow create: if request.resource.data.keys().hasAll(['createdAt']);
-      allow read, update, delete: if false;
-    }
-
-    // Stats counter — only via admin SDK (Cloud Functions)
-    match /stats/{doc} {
-      allow read:   if true;
-      allow write:  if false;  // incremented server-side only
-    }
-  }
-}
-```
-
-These rules mean:
-- **Anyone** can submit a signature (name + email + timestamp required)
-- **Nobody** can edit or delete signatures from the client
-- **Email lock** documents are write-once — the client can't read them back to check duplicates (prevents enumeration)
-- **Stats counter** can only be read by clients — all writes happen via Firebase Admin SDK in Cloud Functions or the admin recount tool
+In short:
+- **Public feed** (`signatures`) only ever stores a first-letter initial, city,
+  and comment — full names and emails live in `signatures_private`, which only
+  an authenticated admin (custom claim) can read
+- **Anyone** can submit a signature (validated name, email, timestamp) — nobody,
+  not even an admin, can edit or delete a recorded signature
+- **Email lock** docs are write-once; `get` is allowed for the duplicate check
+  but `list` never is (prevents enumeration)
+- **Counter** increments are constrained to exactly `+1` per client write;
+  arbitrary values (the admin recount) require the admin claim — so the atomic
+  counter works without Cloud Functions or a Blaze plan
 
 ## Deployment
 
