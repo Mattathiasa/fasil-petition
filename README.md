@@ -97,18 +97,24 @@ npm run preview
 ## Firestore structure
 
 ```
-signatures/          — Each document is one signature
-  ├── name: string
-  ├── email: string
+signatures/            — Public feed, display-only (no PII beyond an initial)
+  ├── nameInitial: string     // first letter of the signer's name
   ├── city: string | null
   ├── comment: string | null
   └── createdAt: timestamp
 
-signed_emails/       — Email lock for duplicate prevention
+signatures_private/     — Identity data, readable only with the admin claim
+  ├── name: string
+  ├── email: string
+  ├── city: string | null
+  ├── comment: string | null
+  └── createdAt: timestamp    // doc id matches signatures/{id}
+
+signed_emails/          — Email lock for duplicate prevention
   └── [email] → { createdAt: timestamp }
 
 stats/
-  └── count → { total: number }   — Atomic counter
+  └── count → { total: number }   — Atomic counter (+1 per signature)
 ```
 
 ## Firestore security rules

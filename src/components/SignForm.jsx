@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  collection, doc, getDoc, writeBatch, serverTimestamp, increment,
+  collection, doc, runTransaction, serverTimestamp, increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { isValidEmail, normalizeEmail, signatureStorageKey } from '../lib/validation'
@@ -28,6 +28,9 @@ export default function SignForm() {
     if (!isValidEmail(trimEmail)) {
       setError('ትክክለኛ ኢሜይል ያስገቡ።'); return
     }
+    if (trimName.length > 100)          { setError('ሙሉ ስምዎ በጣም ረጅም ነው።'); return }
+    if (city.trim().length > 60)        { setError('የከተማ ስም በጣም ረጅም ነው።'); return }
+    if (comment.trim().length > 500)    { setError('አስተያየትዎ ከ500 ቁጥር በላይ ነው።'); return }
 
     // cross-device duplicate check via localStorage cache
     if (localStorage.getItem(signatureStorageKey(trimEmail))) {
@@ -38,47 +41,52 @@ export default function SignForm() {
     setError('')
 
     try {
-      // server-side duplicate check
-      const emailDoc = await getDoc(doc(db, 'signed_emails', trimEmail))
-      if (emailDoc.exists()) {
-        localStorage.setItem(signatureStorageKey(trimEmail), '1')
-        setDone(true)
-        return
-      }
+      // One transaction: check the email lock, then write both signature
+      // docs, the lock, and the counter — atomic, so two devices racing on
+      // the same email cannot double-count.
+      await runTransaction(db, async (tx) => {
+        const emailRef = doc(db, 'signed_emails', trimEmail)
+        const existing = await tx.get(emailRef)
+        if (existing.exists()) return 'duplicate'
 
-      const batch = writeBatch(db)
+        // 1 — public feed doc: first initial + city + comment only
+        const publicRef = doc(collection(db, 'signatures'))
+        tx.set(publicRef, {
+          nameInitial: trimName.charAt(0),
+          city:        city.trim() || null,
+          comment:     comment.trim() || null,
+          createdAt:   serverTimestamp(),
+        })
 
-      // 1 — save signature (name + email for admin only; not shown publicly)
-      batch.set(doc(collection(db, 'signatures')), {
-        name:      trimName,
-        email:     trimEmail,
-        city:      city.trim() || null,
-        comment:   comment.trim() || null,
-        createdAt: serverTimestamp(),
+        // 2 — identity doc (same id): full name + email, admin read only
+        tx.set(doc(db, 'signatures_private', publicRef.id), {
+          name:      trimName,
+          email:     trimEmail,
+          city:      city.trim() || null,
+          comment:   comment.trim() || null,
+          createdAt: serverTimestamp(),
+        })
+
+        // 3 — email lock (write-once, prevents duplicate across devices)
+        tx.set(emailRef, { createdAt: serverTimestamp() })
+
+        // 4 — atomic counter increment (rules allow exactly +1)
+        tx.set(doc(db, 'stats', 'count'), { total: increment(1) }, { merge: true })
+
+        return 'signed'
       })
 
-      // 2 — email lock (prevents duplicate across devices)
-      batch.set(doc(db, 'signed_emails', trimEmail), {
-        createdAt: serverTimestamp(),
-      })
-
-      // 3 — atomic counter increment
-      batch.set(
-        doc(db, 'stats', 'count'),
-        { total: increment(1) },
-        { merge: true }
-      )
-
-      await batch.commit()
       localStorage.setItem(signatureStorageKey(trimEmail), '1')
       localStorage.setItem('fasil_petition_signed', '1')
       setDone(true)
     } catch (err) {
       console.error('[SignForm]', err.code, err.message)
       const msg = {
-        'permission-denied':     'ፍቃድ ተከልክሏል። Firestore Rules ይፈትሹ።',
-        'unavailable':           'ኢንተርኔት ችግር አለ። ድጋሚ ይሞክሩ።',
-        'network-request-failed':'ኢንተርኔት ግንኙነት የለም። ድጋሚ ይሞክሩ።',
+        'permission-denied':      'ፍቃድ ተከልክሏል። Firestore Rules ይፈትሹ።',
+        'unavailable':            'ኢንተርኔት ችግር አለ። ድጋሚ ይሞክሩ።',
+        'network-request-failed': 'ኢንተርኔት ግንኙነት የለም። ድጋሚ ይሞክሩ።',
+        'aborted':                'ብዙ ፊርማ በአንድ ሰዓት መጣ — ድጋሚ ይሞክሩ።',
+        'failed-precondition':    'ብዙ ፊርማ በአንድ ሰዓት መጣ — ድጋሚ ይሞክሩ።',
       }
       setError(msg[err.code] ?? `ችግር ተፈጥሯል (${err.code ?? 'unknown'})`)
     } finally {
