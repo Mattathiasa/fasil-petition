@@ -10,3 +10,5 @@ photo_*.jpg
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+.vercel
+.env*
