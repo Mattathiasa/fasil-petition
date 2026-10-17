@@ -14,6 +14,7 @@ import {
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { buildSignaturesCsv } from '../lib/csv'
+import { useToast } from '../context/ToastContext'
 
 const PAGE_SIZE = 50
 
@@ -37,6 +38,7 @@ function formatDate(ts) {
 }
 
 export default function AdminPanel() {
+  const { toast } = useToast()
   const [authLoading, setAuthLoading] = useState(true)
   const [user, setUser] = useState(null)
   const [hasClaim, setHasClaim] = useState(false)
@@ -188,7 +190,7 @@ export default function AdminPanel() {
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('[AdminPanel export]', err.code, err.message)
-      setLoadError('CSV ማውርድ አልተቻለም — ድጋሚ ይሞክሩ።')
+      toast('CSV ማውርድ አልተቻለም — ድጋሚ ይሞክሩ።', 'error')
     }
   }
 
@@ -202,7 +204,7 @@ export default function AdminPanel() {
       setRecount(real)
     } catch (err) {
       console.error(err)
-      alert('Recount failed: ' + err.message)
+      toast(`Recount failed: ${err.message}`, 'error')
     } finally {
       setRecounting(false)
     }
@@ -229,7 +231,7 @@ export default function AdminPanel() {
       setHasMore(snap.docs.length === PAGE_SIZE)
     } catch (err) {
       console.error('[AdminPanel loadMore]', err.code, err.message)
-      setLoadError('ተጨማሪ መጫን አልተቻለም — ድጋሚ ይሞክሩ።')
+      toast('ተጨማሪ መጫን አልተቻለም — ድጋሚ ይሞክሩ።', 'error')
     } finally {
       setLoadingMore(false)
     }
@@ -246,7 +248,7 @@ export default function AdminPanel() {
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
       console.error('[AdminPanel copy]', err.code, err.message)
-      setLoadError('Clipboard ላይ መቅዳት አልተቻለም።')
+      toast('Clipboard ላይ መቅዳት አልተቻለም።', 'error')
     }
   }
 

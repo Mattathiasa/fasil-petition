@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useCount } from '../context/CountContext'
+import { useToast } from '../context/ToastContext'
 import { GOAL, MILESTONES, nextMilestone, percentSigned } from '../lib/milestone'
 
 function useCountUp(target, duration = 1000) {
@@ -59,6 +60,7 @@ function Confetti() {
 
 export default function SignatureCounter() {
   const { count, status } = useCount()
+  const { toast } = useToast()
   const display = useCountUp(count)
   const [celebrating, setCelebrating] = useState(false)
   const prevCount = useRef(null)
@@ -200,7 +202,7 @@ export default function SignatureCounter() {
                 } else {
                   const caption = `${shareData.text}${window.location.href}`
                   await navigator.clipboard.writeText(caption)
-                  alert('ሊንኩ እና caption ተቀድቷል — TikTok ላይ paste አድርጉ!')
+                  toast('ሊንኩ እና caption ተቀድቷል — TikTok ላይ paste አድርጉ!', 'success')
                 }
               }}
               className="flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-opacity hover:opacity-80"

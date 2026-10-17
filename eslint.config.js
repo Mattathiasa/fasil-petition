@@ -25,7 +25,7 @@ export default [
       'react-hooks/exhaustive-deps': 'warn',
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true, allowExportNames: ['useCount'] },
+        { allowConstantExport: true, allowExportNames: ['useCount', 'useToast'] },
       ],
     },
   },

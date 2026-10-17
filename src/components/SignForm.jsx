@@ -4,8 +4,10 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { isValidEmail, normalizeEmail, signatureStorageKey } from '../lib/validation'
+import { useToast } from '../context/ToastContext'
 
 export default function SignForm() {
+  const { toast } = useToast()
   const [name, setName]       = useState('')
   const [email, setEmail]     = useState('')
   const [city, setCity]       = useState('')
@@ -103,7 +105,7 @@ export default function SignForm() {
       })
     } else {
       navigator.clipboard.writeText(window.location.href)
-      alert('ሊንኩ ተቀድቷል!')
+      toast('ሊንኩ ተቀድቷል!', 'success')
     }
   }
 
