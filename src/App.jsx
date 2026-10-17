@@ -1,5 +1,4 @@
-import { useEffect } from 'react'
-import AdminPanel    from './components/AdminPanel'
+import { lazy, Suspense, useEffect } from 'react'
 import Hero          from './components/Hero'
 import SignatureCounter from './components/SignatureCounter'
 import SignForm       from './components/SignForm'
@@ -33,9 +32,25 @@ function NotFound() {
   )
 }
 
+const AdminPanel = lazy(() => import('./components/AdminPanel'))
+
 const path = window.location.pathname
 const isAdmin = path === '/admin'
 const is404 = !isAdmin && path !== '/'
+
+function RouteFallback() {
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ background: '#0a0a0a' }}
+    >
+      <div
+        className="w-10 h-10 rounded-full border-4 animate-spin"
+        style={{ borderColor: '#1a1a1a', borderTopColor: '#CC0000' }}
+      />
+    </div>
+  )
+}
 
 function PetitionPage() {
   const { count } = useCount()
@@ -106,7 +121,13 @@ function PetitionPage() {
 }
 
 export default function App() {
-  if (isAdmin) return <AdminPanel />
+  if (isAdmin) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <AdminPanel />
+      </Suspense>
+    )
+  }
   if (is404) return <NotFound />
   return (
     <CountProvider>
