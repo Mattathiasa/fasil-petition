@@ -2,7 +2,20 @@
   "name": "fasil-petition",
   "private": true,
   "version": "1.0.0",
+  "description": "Real-time Amharic-language petition platform — React, Vite, Tailwind CSS, and Firebase Firestore",
+  "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mattathiasa/fasil-petition.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mattathiasa/fasil-petition/issues"
+  },
+  "homepage": "https://fasil-petition.vercel.app",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

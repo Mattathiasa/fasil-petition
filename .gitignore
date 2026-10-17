@@ -1,6 +1,8 @@
 node_modules
 dist
+coverage
 .env
 .env.local
 .env.*.local
 photo_*.jpg
+.DS_Store
