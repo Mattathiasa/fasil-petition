@@ -23,6 +23,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-fasil \"vitest run --config vitest.rules.config.js\"",
     "admin:grant": "node scripts/grant-admin.mjs",
     "migrate:dry": "node scripts/migrate-signatures.mjs",
     "migrate:apply": "node scripts/migrate-signatures.mjs --apply"
@@ -34,12 +35,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@firebase/rules-unit-testing": "^3.0.4",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "firebase-admin": "^14.5.0",
+    "firebase-tools": "^15.34.0",
     "globals": "^17.13.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
