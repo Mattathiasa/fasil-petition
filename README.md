@@ -28,7 +28,7 @@ fixes the counter against the actual document count.
 | Recent signers feed | Live feed with time-ago labels, auto-refreshes every 30s |
 | Share to Telegram + TikTok | Deep-link share buttons with pre-filled Amharic text |
 | Mobile sticky CTA | Bottom bar that scrolls users to the sign form |
-| Admin dashboard | Password-protected panel with search, CSV export, recount fix |
+| Admin dashboard | Firebase Auth sign-in + `admin` claim gate, search, CSV export, recount fix |
 | SEO & social sharing | Open Graph + Twitter Card meta tags for clean link previews |
 | Dark UI | Custom dark theme with Noto Sans Ethiopic throughout |
 
@@ -92,7 +92,19 @@ npm run preview
 | `VITE_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID |
 | `VITE_FIREBASE_APP_ID` | Firebase app ID |
-| `VITE_ADMIN_PASSWORD` | Admin panel password |
+
+## Admin access
+
+The `/admin` panel authenticates with **Firebase Auth** (email + password) and
+additionally requires an `admin` custom claim — the password is never shipped
+in the JS bundle:
+
+1. Firebase Console → *Authentication* → *Sign-in method* → enable **Email/Password**
+2. Firebase Console → *Authentication* → *Users* → add the admin user
+3. `export GOOGLE_APPLICATION_CREDENTIALS=~/path/to/serviceAccount.json`
+   (Console → Project settings → Service accounts → generate a key)
+4. `npm run admin:grant -- admin@example.com`
+5. Open `/admin` and sign in (use **ድጋሚ ፈትሽ** if the claim was granted while you were signed in)
 
 ## Firestore structure
 

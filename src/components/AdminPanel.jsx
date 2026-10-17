@@ -8,10 +8,20 @@ import {
   doc,
   setDoc,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
+import { db, auth } from '../firebase'
 import { buildSignaturesCsv } from '../lib/csv'
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
+const AUTH_ERRORS = {
+  'auth/invalid-email':        'ትክክለኛ ኢሜይል ያስገቡ።',
+  'auth/missing-password':     'የይለፍ ቃል ያስገቡ።',
+  'auth/invalid-credential':   'ኢሜይል ወይም የይለፍ ቃል ትክክል አይደለም።',
+  'auth/wrong-password':       'ኢሜይል ወይም የይለፍ ቃል ትክክል አይደለም።',
+  'auth/user-not-found':       'ኢሜይል ወይም የይለፍ ቃል ትክክል አይደለም።',
+  'auth/too-many-requests':    'ብዙ ሙከራ ተደርጓል — ትንሽ ይጠብቁ።',
+  'auth/network-request-failed':'ኢንተርኔት ግንኙነት የለም።',
+  'auth/operation-not-allowed': 'Email/Password sign-in በ Firebase Console አልተفعالም።',
+}
 
 function formatDate(ts) {
   if (!ts) return '—'
@@ -22,46 +32,108 @@ function formatDate(ts) {
 }
 
 export default function AdminPanel() {
-  const [authed, setAuthed] = useState(false)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [user, setUser] = useState(null)
+  const [hasClaim, setHasClaim] = useState(false)
+  const [email, setEmail] = useState('')
   const [pw, setPw] = useState('')
   const [pwError, setPwError] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const [signatures, setSignatures] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [search, setSearch] = useState('')
   const [copied, setCopied] = useState(false)
   const [recounting, setRecounting] = useState(false)
   const [recount, setRecount] = useState(null)
 
+  const authed = !!user && hasClaim
+
   useEffect(() => {
-    if (sessionStorage.getItem('fasil_admin') === '1') setAuthed(true)
+    return onAuthStateChanged(auth, async (u) => {
+      setUser(u)
+      setAuthLoading(false)
+      if (!u) {
+        setHasClaim(false)
+        return
+      }
+      try {
+        const token = await u.getIdTokenResult()
+        setHasClaim(token.claims.admin === true)
+      } catch {
+        setHasClaim(false)
+      }
+    })
   }, [])
 
   useEffect(() => {
-    if (!authed) return
-    const q = query(collection(db, 'signatures'), orderBy('createdAt', 'desc'))
-    return onSnapshot(q, (snap) => {
-      setSignatures(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
-      setLoading(false)
-    })
-  }, [authed])
-
-  function login() {
-    if (!ADMIN_PASSWORD) {
-      setPwError('የአድሚን የይለፍ ቃል አልተ퀭ነም — VITE_ADMIN_PASSWORD ያስቀምጡ')
+    if (!authed) {
+      setSignatures([])
+      setLoading(true)
       return
     }
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem('fasil_admin', '1')
-      setAuthed(true)
-    } else {
-      setPwError('የተሳሳተ የይለፍ ቃል')
+    const q = query(
+      collection(db, 'signatures_private'),
+      orderBy('createdAt', 'desc')
+    )
+    return onSnapshot(
+      q,
+      (snap) => {
+        setLoadError('')
+        setSignatures(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+        setLoading(false)
+      },
+      (err) => {
+        console.error('[AdminPanel]', err.code, err.message)
+        setLoadError(
+          err.code === 'permission-denied'
+            ? 'ፍቃድ የለም — ይህ ተጠቃሚ አድሚን መቼት የለውም። `npm run admin:grant -- <ኢሜይል>` ያጫኑ።'
+            : 'ፊርማዎችን ማጫን አልተቻለም — ድጋሚ ይሞክሩ።'
+        )
+        setLoading(false)
+      }
+    )
+  }, [authed])
+
+  async function login(e) {
+    e.preventDefault()
+    if (!email.trim() || !pw) {
+      setPwError('ኢሜይልና የይለፍ ቃል ያስገቡ።')
+      return
+    }
+    setLoggingIn(true)
+    setPwError('')
+    try {
+      await signInWithEmailAndPassword(auth, email.trim(), pw)
+      // onAuthStateChanged flips the authed state (and checks the claim)
+    } catch (err) {
+      console.error('[AdminLogin]', err.code)
+      setPwError(AUTH_ERRORS[err.code] ?? `ግባት አልተሳካም (${err.code ?? 'unknown'})`)
+    } finally {
+      setLoggingIn(false)
+    }
+  }
+
+  async function refreshClaim() {
+    if (!user) return
+    setRefreshing(true)
+    try {
+      const token = await user.getIdToken(true)
+      setHasClaim(token.claims.admin === true)
+      if (token.claims.admin !== true) {
+        setPwError('አድሚን መቼት አልተሰጠም — grant script ያጫኑ።')
+      }
+    } finally {
+      setRefreshing(false)
     }
   }
 
   function logout() {
-    sessionStorage.removeItem('fasil_admin')
-    setAuthed(false)
+    signOut(auth)
     setPw('')
+    setEmail('')
+    setPwError('')
   }
 
   function exportCSV() {
@@ -110,12 +182,69 @@ export default function AdminPanel() {
     )
   })
 
-  const withEmail = signatures.filter((s) => s.email).length
   const withCity = signatures.filter((s) => s.city).length
   const withComment = signatures.filter((s) => s.comment).length
+  const distinctCities = new Set(
+    signatures.map((s) => s.city).filter(Boolean)
+  ).size
+
+  // ── Auth bootstrapping ─────────────────────────────────────────
+  if (authLoading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: '#0d0d0d', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+      >
+        <p className="text-gray-600 text-sm animate-pulse">በመፈትሽ ላይ...</p>
+      </div>
+    )
+  }
+
+  // ── Signed in via Firebase Auth, but no admin claim yet ───────
+  if (user && !hasClaim) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: '#0d0d0d', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+      >
+        <div className="w-full max-w-sm text-center space-y-5">
+          <div className="text-5xl">🗝️</div>
+          <h1 className="text-white font-black text-2xl">አድሚን መቼት የለም</h1>
+          <p className="text-gray-400 text-sm leading-relaxed">
+            {user.email} በ Firebase Auth ገብተዋል፤ ግን የአድሚን መቼት
+            አልተሰጣቸውም። ከላይ ያለውን ትዕዛዝ ያጫኑ ከዚያ እንደገና ይፈትሹ።
+          </p>
+          <code
+            className="block text-xs rounded-xl px-4 py-3 text-left break-all"
+            style={{ background: '#1a1a1a', border: '1px solid #333', color: '#4ade80' }}
+          >
+            npm run admin:grant -- {user.email}
+          </code>
+          {pwError && <p className="text-red-400 text-sm">{pwError}</p>}
+          <div className="flex gap-2">
+            <button
+              onClick={refreshClaim}
+              disabled={refreshing}
+              className="flex-1 py-3 rounded-xl text-white font-bold disabled:opacity-50"
+              style={{ background: '#CC0000' }}
+            >
+              {refreshing ? '⏳ በመፈትሽ ላይ...' : 'ድጋሚ ፈትሽ'}
+            </button>
+            <button
+              onClick={logout}
+              className="flex-1 py-3 rounded-xl font-bold"
+              style={{ background: '#1a1a1a', border: '1px solid #333', color: '#aaa' }}
+            >
+              ውጣ
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // ── Login screen ──────────────────────────────────────────────
-  if (!authed) {
+  if (!user) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"
@@ -127,29 +256,40 @@ export default function AdminPanel() {
             <h1 className="text-white font-black text-2xl">Admin</h1>
             <p className="text-gray-500 text-sm mt-1">ፋሲል ከነማ እግርኳስ ክለብ Petition</p>
           </div>
-          <div
+          <form
+            onSubmit={login}
             className="rounded-2xl p-6 space-y-4"
             style={{ background: '#111', border: '1px solid #222' }}
           >
             <input
+              type="email"
+              value={email}
+              autoFocus
+              autoComplete="username"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ኢሜይል"
+              className="w-full rounded-xl px-4 py-3 text-white outline-none"
+              style={{ background: '#1a1a1a', border: '1px solid #333' }}
+            />
+            <input
               type="password"
               value={pw}
-              autoFocus
+              autoComplete="current-password"
               onChange={(e) => setPw(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && login()}
               placeholder="የይለፍ ቃል"
               className="w-full rounded-xl px-4 py-3 text-white outline-none"
               style={{ background: '#1a1a1a', border: '1px solid #333' }}
             />
             {pwError && <p className="text-red-400 text-sm">{pwError}</p>}
             <button
-              onClick={login}
-              className="w-full py-3 rounded-xl text-white font-bold text-base"
+              type="submit"
+              disabled={loggingIn}
+              className="w-full py-3 rounded-xl text-white font-bold text-base disabled:opacity-50"
               style={{ background: '#CC0000' }}
             >
-              ግባ
+              {loggingIn ? '⏳ በመግባት ላይ...' : 'ግባ'}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     )
@@ -172,6 +312,7 @@ export default function AdminPanel() {
           </h1>
           <p className="text-gray-500 text-xs">
             {loading ? 'በመጫን ላይ...' : `${signatures.length.toLocaleString()} ጠቅላላ`}
+            {user?.email && <span className="text-gray-600"> · {user.email}</span>}
           </p>
         </div>
         <div className="flex gap-2 ml-auto flex-wrap">
@@ -213,7 +354,7 @@ export default function AdminPanel() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
             { value: signatures.length, label: 'ጠቅላላ ፊርማዎች', color: '#fff' },
-            { value: withEmail, label: 'ኢሜይል ያለው', color: '#CC0000' },
+            { value: distinctCities, label: 'የተለያዩ ከተማዎች', color: '#CC0000' },
             { value: withCity, label: 'ከተማ ያለው', color: '#4fc3f7' },
             { value: withComment, label: 'አስተያየት ያለው', color: '#4ade80' },
           ].map((s) => (
@@ -229,6 +370,20 @@ export default function AdminPanel() {
             </div>
           ))}
         </div>
+
+        {/* Load error */}
+        {loadError && (
+          <div
+            className="rounded-xl px-4 py-3 text-sm"
+            style={{
+              background: 'rgba(204,0,0,0.12)',
+              border: '1px solid rgba(204,0,0,0.35)',
+              color: '#ff7070',
+            }}
+          >
+            ⚠️ {loadError}
+          </div>
+        )}
 
         {/* Search */}
         <input
