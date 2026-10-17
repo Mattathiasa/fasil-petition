@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useCount } from '../hooks/useCount'
+import { useCount } from '../context/CountContext'
 
 export default function MobileCTA() {
   const { count } = useCount()

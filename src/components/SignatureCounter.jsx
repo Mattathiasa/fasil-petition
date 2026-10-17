@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { useCount } from '../hooks/useCount'
+import { useCount } from '../context/CountContext'
 import { GOAL, MILESTONES, nextMilestone, percentSigned } from '../lib/milestone'
 
 function useCountUp(target, duration = 1000) {

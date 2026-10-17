@@ -1,4 +1,4 @@
-import { useCount } from '../hooks/useCount'
+import { useCount } from '../context/CountContext'
 
 export default function Hero() {
   const { count } = useCount()

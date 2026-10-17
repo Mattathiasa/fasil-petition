@@ -9,7 +9,7 @@ import ProblemsSection from './components/ProblemsSection'
 import ReasonsSection from './components/ReasonsSection'
 import RecentSigners  from './components/RecentSigners'
 import MobileCTA      from './components/MobileCTA'
-import { useCount }   from './hooks/useCount'
+import { CountProvider, useCount } from './context/CountContext'
 
 function NotFound() {
   return (
@@ -108,5 +108,9 @@ function PetitionPage() {
 export default function App() {
   if (isAdmin) return <AdminPanel />
   if (is404) return <NotFound />
-  return <PetitionPage />
+  return (
+    <CountProvider>
+      <PetitionPage />
+    </CountProvider>
+  )
 }
