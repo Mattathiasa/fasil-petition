@@ -9,6 +9,7 @@ import {
   setDoc,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import { buildSignaturesCsv } from '../lib/csv'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
 
@@ -64,19 +65,7 @@ export default function AdminPanel() {
   }
 
   function exportCSV() {
-    const header = ['#', 'ሙሉ ስም', 'ኢሜይል', 'ከተማ', 'አስተያየት', 'ቀን/ሰዓት']
-    const rows = signatures.map((s, i) => [
-      i + 1,
-      s.name ?? '',
-      s.email ?? '',
-      s.city ?? '',
-      s.comment ?? '',
-      s.createdAt ? s.createdAt.toDate().toISOString() : '',
-    ])
-    const csv = [header, ...rows]
-      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))
-      .join('\n')
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([buildSignaturesCsv(signatures)], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url

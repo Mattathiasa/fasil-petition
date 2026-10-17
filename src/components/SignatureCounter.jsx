@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useCount } from '../hooks/useCount'
-
-const GOAL = 20000
-const MILESTONES = [1000, 2500, 5000, 10000, 15000, 20000]
+import { GOAL, MILESTONES, nextMilestone, percentSigned } from '../lib/milestone'
 
 function useCountUp(target, duration = 1000) {
   const [display, setDisplay] = useState(0)
@@ -27,10 +25,6 @@ function useCountUp(target, duration = 1000) {
   }, [target, duration])
 
   return display
-}
-
-function nextMilestone(n) {
-  return MILESTONES.find((m) => m > n) ?? GOAL
 }
 
 function Confetti() {
@@ -70,7 +64,7 @@ export default function SignatureCounter() {
   const prevCount = useRef(null)
 
   const safeCount = count ?? 0
-  const pct = Math.min((safeCount / GOAL) * 100, 100)
+  const pct = percentSigned(safeCount)
   const next = nextMilestone(safeCount)
 
   // Detect milestone crossing

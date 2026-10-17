@@ -3,10 +3,7 @@ import {
   collection, doc, getDoc, writeBatch, serverTimestamp, increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
-
-function emailKey(email) {
-  return `fasil_petition_signed_${email.toLowerCase().trim()}`
-}
+import { isValidEmail, normalizeEmail, signatureStorageKey } from '../lib/validation'
 
 export default function SignForm() {
   const [name, setName]       = useState('')
@@ -25,15 +22,15 @@ export default function SignForm() {
   async function submit(e) {
     e.preventDefault()
     const trimName  = name.trim()
-    const trimEmail = email.toLowerCase().trim()
+    const trimEmail = normalizeEmail(email)
     if (!trimName)  { setError('ሙሉ ስምዎን ያስገቡ።'); return }
     if (!trimEmail) { setError('ኢሜይልዎን ያስገቡ።'); return }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimEmail)) {
+    if (!isValidEmail(trimEmail)) {
       setError('ትክክለኛ ኢሜይል ያስገቡ።'); return
     }
 
     // cross-device duplicate check via localStorage cache
-    if (localStorage.getItem(emailKey(trimEmail))) {
+    if (localStorage.getItem(signatureStorageKey(trimEmail))) {
       setDone(true); return
     }
 
@@ -44,7 +41,7 @@ export default function SignForm() {
       // server-side duplicate check
       const emailDoc = await getDoc(doc(db, 'signed_emails', trimEmail))
       if (emailDoc.exists()) {
-        localStorage.setItem(emailKey(trimEmail), '1')
+        localStorage.setItem(signatureStorageKey(trimEmail), '1')
         setDone(true)
         return
       }
@@ -73,7 +70,7 @@ export default function SignForm() {
       )
 
       await batch.commit()
-      localStorage.setItem(emailKey(trimEmail), '1')
+      localStorage.setItem(signatureStorageKey(trimEmail), '1')
       localStorage.setItem('fasil_petition_signed', '1')
       setDone(true)
     } catch (err) {
