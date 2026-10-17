@@ -1,8 +1,10 @@
+import { colors } from '../lib/theme'
+
 export default function PetitionLetter() {
   return (
-    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: '#111111' }}>
+    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: colors.surface }}>
       {/* Header */}
-      <div className="px-6 py-4 flex items-center gap-3" style={{ background: '#CC0000' }}>
+      <div className="px-6 py-4 flex items-center gap-3" style={{ background: colors.brand }}>
         <span className="text-2xl">📜</span>
         <h2 className="text-white font-bold text-lg">ክፍት ደብዳቤ</h2>
       </div>
@@ -48,8 +50,8 @@ export default function PetitionLetter() {
         <blockquote
           className="rounded-xl p-5 border-l-4 italic"
           style={{
-            borderColor: '#CC0000',
-            background: 'rgba(204,0,0,0.08)',
+            borderColor: colors.brand,
+            background: colors.brandTintSoft,
           }}
         >
           <p className="text-white font-bold text-lg sm:text-xl">
@@ -63,7 +65,7 @@ export default function PetitionLetter() {
           ሊመራው የሚችል ስራ አስኪያጅ እንዲቀጠርልን በታላቁ ደጋፊ ስም እንጠይቃለን።
         </p>
 
-        <p className="font-black text-xl" style={{ color: '#CC0000' }}>
+        <p className="font-black text-xl" style={{ color: colors.brand }}>
           የክለባችን ክብር ይመለስ! አሁኑኑ ይፈረሙ፣ ለሌሎችም ያጋሩ!
         </p>
 

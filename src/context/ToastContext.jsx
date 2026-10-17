@@ -1,13 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { colors } from '../lib/theme'
 
 const ToastContext = createContext({ toast: () => {} })
 
 const TOAST_MS = 4500
 
 const STYLES = {
-  error:   { background: '#2a0f0f', border: '1px solid #CC0000', icon: '⚠️' },
-  success: { background: '#0f2a14', border: '1px solid #1a4a1a', icon: '✓' },
-  info:    { background: '#1a1a1a', border: '1px solid #333', icon: 'ℹ️' },
+  error:   { background: colors.dangerBg, border: `1px solid ${colors.brand}`, icon: '⚠️' },
+  success: { background: colors.successBgSoft, border: `1px solid ${colors.successBorder}`, icon: '✓' },
+  info:    { background: colors.control, border: `1px solid ${colors.borderInput}`, icon: 'ℹ️' },
 }
 
 let nextId = 0

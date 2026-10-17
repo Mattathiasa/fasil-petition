@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { colors } from '../lib/theme'
 
 const photos = [
   { src: '/fan1.jpg', alt: 'የደጋፊ ቅጽበት 1' },
@@ -16,7 +17,7 @@ function FanPhoto({ src, alt }) {
     return (
       <div
         className="w-full h-full flex flex-col items-center justify-center gap-2"
-        style={{ background: '#1a1a1a', border: '1px dashed #333' }}
+        style={{ background: colors.control, border: `1px dashed ${colors.borderInput}` }}
       >
         <span className="text-3xl opacity-40">📸</span>
         <span className="text-gray-600 text-xs font-semibold">ደጋፊ</span>
@@ -37,10 +38,10 @@ function FanPhoto({ src, alt }) {
 
 export default function FanGallery() {
   return (
-    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: '#111111' }}>
+    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: colors.surface }}>
       <div
         className="px-6 py-4 flex items-center gap-3"
-        style={{ background: '#1a1a1a', borderBottom: '1px solid #2a2a2a' }}
+        style={{ background: colors.control, borderBottom: `1px solid ${colors.borderMid}` }}
       >
         <span className="text-2xl">📸</span>
         <h2 className="text-white font-bold text-lg">የደጋፊዎች ድምፅ</h2>

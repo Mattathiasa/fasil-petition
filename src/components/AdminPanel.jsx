@@ -15,6 +15,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebas
 import { db, auth } from '../firebase'
 import { buildSignaturesCsv } from '../lib/csv'
 import { useToast } from '../context/ToastContext'
+import { colors, fonts } from '../lib/theme'
 
 const PAGE_SIZE = 50
 
@@ -274,7 +275,7 @@ export default function AdminPanel() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: '#0d0d0d', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+        style={{ background: colors.bgAlt, fontFamily: fonts.body }}
       >
         <p className="text-gray-600 text-sm animate-pulse">በመፈትሽ ላይ...</p>
       </div>
@@ -286,7 +287,7 @@ export default function AdminPanel() {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"
-        style={{ background: '#0d0d0d', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+        style={{ background: colors.bgAlt, fontFamily: fonts.body }}
       >
         <div className="w-full max-w-sm text-center space-y-5">
           <div className="text-5xl">🗝️</div>
@@ -297,7 +298,7 @@ export default function AdminPanel() {
           </p>
           <code
             className="block text-xs rounded-xl px-4 py-3 text-left break-all"
-            style={{ background: '#1a1a1a', border: '1px solid #333', color: '#4ade80' }}
+            style={{ background: colors.control, border: `1px solid ${colors.borderInput}`, color: colors.success }}
           >
             npm run admin:grant -- {user.email}
           </code>
@@ -307,14 +308,14 @@ export default function AdminPanel() {
               onClick={refreshClaim}
               disabled={refreshing}
               className="flex-1 py-3 rounded-xl text-white font-bold disabled:opacity-50"
-              style={{ background: '#CC0000' }}
+              style={{ background: colors.brand }}
             >
               {refreshing ? '⏳ በመፈትሽ ላይ...' : 'ድጋሚ ፈትሽ'}
             </button>
             <button
               onClick={logout}
               className="flex-1 py-3 rounded-xl font-bold"
-              style={{ background: '#1a1a1a', border: '1px solid #333', color: '#aaa' }}
+              style={{ background: colors.control, border: `1px solid ${colors.borderInput}`, color: colors.textMuted }}
             >
               ውጣ
             </button>
@@ -329,7 +330,7 @@ export default function AdminPanel() {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"
-        style={{ background: '#0d0d0d', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+        style={{ background: colors.bgAlt, fontFamily: fonts.body }}
       >
         <div className="w-full max-w-xs">
           <div className="text-center mb-8">
@@ -340,7 +341,7 @@ export default function AdminPanel() {
           <form
             onSubmit={login}
             className="rounded-2xl p-6 space-y-4"
-            style={{ background: '#111', border: '1px solid #222' }}
+            style={{ background: colors.surface, border: `1px solid ${colors.borderStrong}` }}
           >
             <input
               type="email"
@@ -350,7 +351,7 @@ export default function AdminPanel() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ኢሜይል"
               className="w-full rounded-xl px-4 py-3 text-white outline-none"
-              style={{ background: '#1a1a1a', border: '1px solid #333' }}
+              style={{ background: colors.control, border: `1px solid ${colors.borderInput}` }}
             />
             <input
               type="password"
@@ -359,14 +360,14 @@ export default function AdminPanel() {
               onChange={(e) => setPw(e.target.value)}
               placeholder="የይለፍ ቃል"
               className="w-full rounded-xl px-4 py-3 text-white outline-none"
-              style={{ background: '#1a1a1a', border: '1px solid #333' }}
+              style={{ background: colors.control, border: `1px solid ${colors.borderInput}` }}
             />
             {pwError && <p className="text-red-400 text-sm">{pwError}</p>}
             <button
               type="submit"
               disabled={loggingIn}
               className="w-full py-3 rounded-xl text-white font-bold text-base disabled:opacity-50"
-              style={{ background: '#CC0000' }}
+              style={{ background: colors.brand }}
             >
               {loggingIn ? '⏳ በመግባት ላይ...' : 'ግባ'}
             </button>
@@ -380,12 +381,12 @@ export default function AdminPanel() {
   return (
     <div
       className="min-h-screen text-white"
-      style={{ background: '#0d0d0d', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+      style={{ background: colors.bgAlt, fontFamily: fonts.body }}
     >
       {/* Sticky header */}
       <div
         className="sticky top-0 z-20 px-4 py-3 flex items-center gap-3 flex-wrap"
-        style={{ background: '#111', borderBottom: '1px solid #222' }}
+        style={{ background: colors.surface, borderBottom: `1px solid ${colors.borderStrong}` }}
       >
         <div>
           <h1 className="font-black text-base text-white leading-tight">
@@ -406,28 +407,28 @@ export default function AdminPanel() {
             disabled={recounting}
             title="Count all documents and fix the counter"
             className="px-3 py-2 rounded-lg text-xs font-bold"
-            style={{ background: '#1a1a1a', border: '1px solid #333', color: recount !== null ? '#4ade80' : '#aaa' }}
+            style={{ background: colors.control, border: `1px solid ${colors.borderInput}`, color: recount !== null ? colors.success : colors.textMuted }}
           >
             {recounting ? '⏳' : recount !== null ? `✓ ${recount.toLocaleString()}` : '🔄 Recount'}
           </button>
           <button
             onClick={copyAll}
             className="px-3 py-2 rounded-lg text-xs font-bold"
-            style={{ background: '#1a1a1a', border: '1px solid #333', color: copied ? '#4ade80' : '#fff' }}
+            style={{ background: colors.control, border: `1px solid ${colors.borderInput}`, color: copied ? colors.success : colors.text }}
           >
             {copied ? '✓ ተቀድቷል' : '📋 ቅዳ'}
           </button>
           <button
             onClick={exportCSV}
             className="px-3 py-2 rounded-lg text-xs font-bold text-white"
-            style={{ background: '#CC0000' }}
+            style={{ background: colors.brand }}
           >
             📥 CSV
           </button>
           <button
             onClick={logout}
             className="px-3 py-2 rounded-lg text-xs font-bold text-gray-400"
-            style={{ background: '#1a1a1a', border: '1px solid #333' }}
+            style={{ background: colors.control, border: `1px solid ${colors.borderInput}` }}
           >
             ውጣ
           </button>
@@ -438,15 +439,15 @@ export default function AdminPanel() {
         {/* Stats cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { value: total ?? rows.length, label: 'ጠቅላላ ፊርማዎች', color: '#fff' },
-            { value: distinctCities, label: 'የተለያዩ ከተማዎች', color: '#CC0000' },
-            { value: withCity, label: 'ከተማ ያለው', color: '#4fc3f7' },
-            { value: withComment, label: 'አስተያየት ያለው', color: '#4ade80' },
+            { value: total ?? rows.length, label: 'ጠቅላላ ፊርማዎች', color: colors.text },
+            { value: distinctCities, label: 'የተለያዩ ከተማዎች', color: colors.brand },
+            { value: withCity, label: 'ከተማ ያለው', color: colors.info },
+            { value: withComment, label: 'አስተያየት ያለው', color: colors.success },
           ].map((s) => (
             <div
               key={s.label}
               className="rounded-2xl p-4 text-center"
-              style={{ background: '#111', border: '1px solid #222' }}
+              style={{ background: colors.surface, border: `1px solid ${colors.borderStrong}` }}
             >
               <p className="text-3xl sm:text-4xl font-black" style={{ color: s.color }}>
                 {s.value.toLocaleString()}
@@ -461,9 +462,9 @@ export default function AdminPanel() {
           <div
             className="rounded-xl px-4 py-3 text-sm"
             style={{
-              background: 'rgba(204,0,0,0.12)',
-              border: '1px solid rgba(204,0,0,0.35)',
-              color: '#ff7070',
+              background: colors.brandTint,
+              border: `1px solid ${colors.brandEdge}`,
+              color: colors.danger,
             }}
           >
             ⚠️ {loadError}
@@ -477,7 +478,7 @@ export default function AdminPanel() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="🔍 ፈልግ — ስም፣ ኢሜይል፣ ከተማ፣ ወይም አስተያየት..."
           className="w-full rounded-xl px-4 py-3 text-white outline-none"
-          style={{ background: '#111', border: '1px solid #2a2a2a' }}
+          style={{ background: colors.surface, border: `1px solid ${colors.borderMid}` }}
         />
 
         {/* Results label */}
@@ -488,14 +489,14 @@ export default function AdminPanel() {
         )}
 
         {/* Signature list */}
-        <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid #1e1e1e' }}>
+        <div className="rounded-2xl overflow-hidden" style={{ border: `1px solid ${colors.borderCard}` }}>
           {/* Column headers — hidden on mobile, shown on sm+ */}
           <div
             className="hidden sm:grid text-xs font-bold text-gray-600 uppercase tracking-wider px-5 py-3"
             style={{
-              background: '#181818',
+              background: colors.surface2,
               gridTemplateColumns: '44px 1fr 150px 100px 1fr 155px',
-              borderBottom: '1px solid #1e1e1e',
+              borderBottom: `1px solid ${colors.borderCard}`,
             }}
           >
             <span>#</span>
@@ -517,8 +518,8 @@ export default function AdminPanel() {
               <div
                 key={s.id}
                 style={{
-                  background: i % 2 === 0 ? '#0f0f0f' : '#111',
-                  borderTop: i === 0 ? 'none' : '1px solid #1a1a1a',
+                  background: i % 2 === 0 ? colors.rowAlt : colors.surface,
+                  borderTop: i === 0 ? 'none' : `1px solid ${colors.border}`,
                 }}
               >
                 {/* Desktop row */}
@@ -574,7 +575,7 @@ export default function AdminPanel() {
                 onClick={loadMore}
                 disabled={loadingMore}
                 className="px-6 py-3 rounded-xl text-sm font-bold disabled:opacity-50"
-                style={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
+                style={{ background: colors.control, border: `1px solid ${colors.borderInput}`, color: colors.text }}
               >
                 {loadingMore
                   ? '⏳ በመጫን ላይ...'

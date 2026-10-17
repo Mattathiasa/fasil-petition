@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useCount } from '../context/CountContext'
+import { colors, gradients, shadows } from '../lib/theme'
 
 export default function MobileCTA() {
   const { count } = useCount()
@@ -20,12 +21,12 @@ export default function MobileCTA() {
   return (
     <div
       className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 ${hidden ? 'translate-y-full' : 'translate-y-0'}`}
-      style={{ padding: '12px 16px 20px', background: 'linear-gradient(to top, #0a0a0a 70%, transparent)' }}
+      style={{ padding: '12px 16px 20px', background: gradients.fadeToBg }}
     >
       <button
         onClick={() => document.getElementById('sign-form')?.scrollIntoView({ behavior: 'smooth' })}
         className="w-full py-4 rounded-2xl text-white font-black text-lg"
-        style={{ background: '#CC0000', boxShadow: '0 -4px 30px rgba(204,0,0,0.5)' }}
+        style={{ background: colors.brand, boxShadow: shadows.cta }}
       >
         ✊ ፊርማ ስጥ
         {count !== null && count > 0 && (

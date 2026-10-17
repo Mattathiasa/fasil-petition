@@ -10,12 +10,13 @@ import RecentSigners  from './components/RecentSigners'
 import MobileCTA      from './components/MobileCTA'
 import { CountProvider, useCount } from './context/CountContext'
 import { getRoute } from './lib/routes'
+import { colors, fonts } from './lib/theme'
 
 function NotFound() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 text-center"
-      style={{ background: '#0a0a0a', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+      style={{ background: colors.bg, fontFamily: fonts.body }}
     >
       <p className="text-6xl mb-6">🔍</p>
       <h1 className="text-white font-black text-3xl mb-3">ይህ ገጽ አልተገኘም</h1>
@@ -25,7 +26,7 @@ function NotFound() {
       <a
         href="/"
         className="px-6 py-3 rounded-xl text-white font-bold transition-opacity hover:opacity-90"
-        style={{ background: '#CC0000' }}
+        style={{ background: colors.brand }}
       >
         ወደ ዋና ገጽ ተመለስ
       </a>
@@ -41,11 +42,11 @@ function RouteFallback() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: '#0a0a0a' }}
+      style={{ background: colors.bg }}
     >
       <div
         className="w-10 h-10 rounded-full border-4 animate-spin"
-        style={{ borderColor: '#1a1a1a', borderTopColor: '#CC0000' }}
+        style={{ borderColor: colors.border, borderTopColor: colors.brand }}
       />
     </div>
   )
@@ -63,7 +64,7 @@ function PetitionPage() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: '#0a0a0a', fontFamily: "'Noto Sans Ethiopic', Ethiopic, sans-serif" }}
+      style={{ background: colors.bg, fontFamily: fonts.body }}
     >
       <Hero />
 
@@ -100,11 +101,11 @@ function PetitionPage() {
 
       <footer
         className="text-center py-12 px-4"
-        style={{ borderTop: '1px solid #1a1a1a' }}
+        style={{ borderTop: `1px solid ${colors.border}` }}
       >
         <p
           className="font-black text-lg sm:text-xl leading-relaxed mb-3"
-          style={{ color: '#CC0000' }}
+          style={{ color: colors.brand }}
         >
           መልካም ዕድል — ዘመን የማይሽረዉ ከፍታ ለጎንደሩ ጌጥ፣
           <br />

@@ -5,6 +5,7 @@ import {
 import { db } from '../firebase'
 import { isValidEmail, normalizeEmail, signatureStorageKey } from '../lib/validation'
 import { useToast } from '../context/ToastContext'
+import { colors, shadows } from '../lib/theme'
 
 export default function SignForm() {
   const { toast } = useToast()
@@ -115,7 +116,7 @@ export default function SignForm() {
       <div
         id="sign-form"
         className="rounded-2xl p-6 text-center space-y-4"
-        style={{ background: '#0c1f0c', border: '1px solid #1a4a1a' }}
+        style={{ background: colors.successBg, border: `1px solid ${colors.successBorder}` }}
       >
         <p className="text-5xl">🎉</p>
         <div>
@@ -125,7 +126,7 @@ export default function SignForm() {
         <button
           onClick={share}
           className="w-full py-3 rounded-xl text-white font-bold transition-opacity hover:opacity-90"
-          style={{ background: '#CC0000' }}
+          style={{ background: colors.brand }}
         >
           📤 ለጓደኞችዎ ያጋሩ
         </button>
@@ -138,9 +139,9 @@ export default function SignForm() {
     <div
       id="sign-form"
       className="rounded-2xl overflow-hidden"
-      style={{ background: '#111', border: '1px solid #1e1e1e' }}
+      style={{ background: colors.surface, border: `1px solid ${colors.borderCard}` }}
     >
-      <div className="px-5 py-4" style={{ background: '#CC0000' }}>
+      <div className="px-5 py-4" style={{ background: colors.brand }}>
         <p className="text-white font-black text-lg">✍️ ፊርማዎን ይስጡ</p>
         <p className="text-red-200 text-xs mt-0.5">ስም እና ኢሜይል ያስፈልጋል — 30 ሰከንድ ይወስዳል</p>
       </div>
@@ -182,16 +183,16 @@ export default function SignForm() {
             placeholder="ለፋሲል ከነማ እግርኳስ ክለብ ያለዎን ፍቅር ያካፍሉ..."
             rows={3}
             className="w-full rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 outline-none resize-none transition-colors"
-            style={{ background: '#181818', border: '1.5px solid #2a2a2a' }}
-            onFocus={(e) => (e.target.style.borderColor = '#CC0000')}
-            onBlur={(e)  => (e.target.style.borderColor = '#2a2a2a')}
+            style={{ background: colors.surface2, border: `1.5px solid ${colors.borderMid}` }}
+            onFocus={(e) => (e.target.style.borderColor = colors.brand)}
+            onBlur={(e)  => (e.target.style.borderColor = colors.borderMid)}
           />
         </Field>
 
         {error && (
           <p
             className="text-sm rounded-xl px-4 py-3"
-            style={{ background: 'rgba(204,0,0,0.12)', border: '1px solid rgba(204,0,0,0.35)', color: '#ff7070' }}
+            style={{ background: colors.brandTint, border: `1px solid ${colors.brandEdge}`, color: colors.danger }}
           >
             ⚠️ {error}
           </p>
@@ -202,8 +203,8 @@ export default function SignForm() {
           disabled={loading}
           className="w-full py-4 rounded-xl text-white font-black text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
-            background: '#CC0000',
-            boxShadow: loading ? 'none' : '0 4px 24px rgba(204,0,0,0.45)',
+            background: colors.brand,
+            boxShadow: loading ? 'none' : shadows.brandSubmit,
           }}
         >
           {loading ? '⏳ በማስቀመጥ ላይ...' : '✊ ፊርማ ስጥ'}
@@ -222,7 +223,7 @@ function Field({ label, hint, required, children }) {
     <div>
       <label className="flex items-center gap-2 text-gray-400 text-xs font-bold uppercase tracking-wider mb-1.5">
         {label}
-        {required && <span style={{ color: '#CC0000' }}>*</span>}
+        {required && <span style={{ color: colors.brand }}>*</span>}
         {hint && <span className="text-gray-600 normal-case font-normal tracking-normal">({hint})</span>}
       </label>
       {children}
@@ -235,9 +236,9 @@ function Input({ ...props }) {
     <input
       {...props}
       className="w-full rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 outline-none transition-colors"
-      style={{ background: '#181818', border: '1.5px solid #2a2a2a' }}
-      onFocus={(e) => (e.target.style.borderColor = '#CC0000')}
-      onBlur={(e)  => (e.target.style.borderColor = '#2a2a2a')}
+      style={{ background: colors.surface2, border: `1.5px solid ${colors.borderMid}` }}
+      onFocus={(e) => (e.target.style.borderColor = colors.brand)}
+      onBlur={(e)  => (e.target.style.borderColor = colors.borderMid)}
     />
   )
 }

@@ -1,3 +1,5 @@
+import { colors } from '../lib/theme'
+
 const qualities = [
   {
     num: '፩',
@@ -38,8 +40,8 @@ const qualities = [
 
 export default function ReasonsSection() {
   return (
-    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: '#111111' }}>
-      <div className="px-6 py-4 flex items-center gap-3" style={{ background: '#1a1a1a', borderBottom: '1px solid #2a2a2a' }}>
+    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: colors.surface }}>
+      <div className="px-6 py-4 flex items-center gap-3" style={{ background: colors.control, borderBottom: `1px solid ${colors.borderMid}` }}>
         <span className="text-2xl">📋</span>
         <h2 className="text-white font-bold text-lg">
           ከአዲሱ ስራ አስኪያጅ የምንፈልጋቸው 7 ባህሪያት
@@ -50,11 +52,11 @@ export default function ReasonsSection() {
           <div
             key={q.num}
             className="flex gap-4 p-4 rounded-xl transition-colors"
-            style={{ background: '#1a1a1a' }}
+            style={{ background: colors.control }}
           >
             <div
               className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
-              style={{ background: '#CC0000' }}
+              style={{ background: colors.brand }}
             >
               {q.num}
             </div>

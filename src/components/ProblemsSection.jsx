@@ -1,3 +1,5 @@
+import { colors } from '../lib/theme'
+
 const problems = [
   {
     icon: '🏗️',
@@ -18,10 +20,10 @@ const problems = [
 
 export default function ProblemsSection() {
   return (
-    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: '#111111' }}>
+    <div className="rounded-2xl border border-gray-800 overflow-hidden" style={{ background: colors.surface }}>
       <div
         className="px-6 py-4 flex items-center gap-3"
-        style={{ background: '#1a1a1a', borderBottom: '1px solid #2a2a2a' }}
+        style={{ background: colors.control, borderBottom: `1px solid ${colors.borderMid}` }}
       >
         <span className="text-2xl">⚠️</span>
         <div>
@@ -43,11 +45,11 @@ export default function ProblemsSection() {
           <div
             key={i}
             className="flex gap-4 p-4 rounded-xl"
-            style={{ background: 'rgba(204,0,0,0.06)', border: '1px solid rgba(204,0,0,0.2)' }}
+            style={{ background: colors.brandFaint, border: `1px solid ${colors.brandHairline}` }}
           >
             <div
               className="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-xl"
-              style={{ background: 'rgba(204,0,0,0.15)' }}
+              style={{ background: colors.brandHalo }}
             >
               {p.icon}
             </div>
@@ -61,7 +63,7 @@ export default function ProblemsSection() {
         {/* Closing statement */}
         <div
           className="rounded-xl p-4 text-center"
-          style={{ background: 'rgba(204,0,0,0.1)', border: '1px solid rgba(204,0,0,0.3)' }}
+          style={{ background: colors.brandWash, border: `1px solid ${colors.brandEdgeSoft}` }}
         >
           <p className="text-white font-bold text-sm">
             ክለቡ መድረስ የነበረበት ቦታ እንዳይደርስ በማድረግ እንቅፋት ሆነዋል — ይህ ከአሁን በኋላ መቀጠል የለበትም።

@@ -2,8 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Core design tokens, mirrored from src/lib/theme.js for CSS-side rules. */
+:root {
+  --color-bg: #0a0a0a;
+  --color-bg-alt: #0d0d0d;
+  --color-surface: #111;
+  --color-brand: #cc0000;
+  --color-text: #fff;
+  --font-body: 'Noto Sans Ethiopic', 'Ethiopic', sans-serif;
+}
+
 * {
-  font-family: 'Noto Sans Ethiopic', 'Ethiopic', sans-serif;
+  font-family: var(--font-body);
 }
 
 html {
@@ -11,5 +21,5 @@ html {
 }
 
 body {
-  background-color: #0d0d0d;
+  background-color: var(--color-bg-alt);
 }

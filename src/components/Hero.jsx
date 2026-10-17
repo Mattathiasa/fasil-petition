@@ -1,4 +1,5 @@
 import { useCount } from '../context/CountContext'
+import { colors, gradients, shadows } from '../lib/theme'
 
 export default function Hero() {
   const { count } = useCount()
@@ -6,12 +7,12 @@ export default function Hero() {
   return (
     <div
       className="relative overflow-hidden"
-      style={{ background: 'linear-gradient(170deg,#1c0000 0%,#0f0000 50%,#0a0a0a 100%)' }}
+      style={{ background: gradients.hero }}
     >
       {/* Red glow */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%,rgba(204,0,0,0.28) 0%,transparent 65%)' }}
+        style={{ background: gradients.brandAura }}
       />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 pt-10 pb-12">
@@ -28,7 +29,7 @@ export default function Hero() {
           {/* Dark gradient at bottom so text is readable */}
           <div
             className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)' }}
+            style={{ background: gradients.caption }}
           />
 
           {/* Crest — top left */}
@@ -37,14 +38,14 @@ export default function Hero() {
               src="/crest.jpg"
               alt="ፋሲል ከነማ እግርኳስ ክለብ"
               className="w-16 h-16 rounded-full object-cover object-top"
-              style={{ border: '2px solid #CC0000', boxShadow: '0 0 20px rgba(204,0,0,0.6)' }}
+              style={{ border: `2px solid ${colors.brand}`, boxShadow: shadows.brandRing }}
             />
           </div>
 
           {/* OUT badge — top right */}
           <div
             className="absolute top-4 right-4 w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-2xl"
-            style={{ background: '#CC0000', boxShadow: '0 0 24px rgba(204,0,0,0.9)' }}
+            style={{ background: colors.brand, boxShadow: shadows.brandGlow }}
           >✕</div>
 
           {/* Name at bottom of photo */}
@@ -57,13 +58,13 @@ export default function Hero() {
         {/* ── Title + description + counter ── */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="flex-1">
-            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-2" style={{ color: '#CC0000' }}>
+            <p className="text-xs font-bold tracking-[0.3em] uppercase mb-2" style={{ color: colors.brand }}>
               ፋሲል ከነማ እግርኳስ ክለብ · ባህር ዳር · ከ1968 ዓ.ም
             </p>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3">
               አቶ አቢዮት ብርሃኑ
               <br />
-              <span style={{ color: '#CC0000' }}>ከሃላፊነት ይነሱ!</span>
+              <span style={{ color: colors.brand }}>ከሃላፊነት ይነሱ!</span>
             </h1>
             <p className="text-gray-400 text-sm sm:text-base leading-relaxed max-w-2xl">
               የ56 ዓመት ታሪክና ክብር ያለው ፋሲል ከነማ እግርኳስ ክለብ፣ ካለበት የአመራር ብቃት ማነስ እና
@@ -75,7 +76,7 @@ export default function Hero() {
           {/* Counter */}
           <div
             className="rounded-2xl px-8 py-5 text-center flex-shrink-0"
-            style={{ background: 'rgba(204,0,0,0.15)', border: '1px solid rgba(204,0,0,0.35)' }}
+            style={{ background: colors.brandHalo, border: `1px solid ${colors.brandEdge}` }}
           >
             <p className="text-5xl font-black text-white tabular-nums">
               {count === null ? '—' : count.toLocaleString()}

@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { colors, fonts } from '../lib/theme'
 
 export default class ErrorBoundary extends Component {
   state = { error: null }
@@ -16,7 +17,7 @@ export default class ErrorBoundary extends Component {
       return (
         <div
           className="min-h-screen flex flex-col items-center justify-center px-4 text-center"
-          style={{ background: '#0a0a0a', fontFamily: "'Noto Sans Ethiopic', sans-serif" }}
+          style={{ background: colors.bg, fontFamily: fonts.body }}
         >
           <p className="text-6xl mb-6">⚠️</p>
           <h1 className="text-white font-black text-3xl mb-3">የስህተት መልእክት</h1>
@@ -27,7 +28,7 @@ export default class ErrorBoundary extends Component {
             type="button"
             onClick={() => window.location.reload()}
             className="px-6 py-3 rounded-xl text-white font-bold transition-opacity hover:opacity-90"
-            style={{ background: '#CC0000' }}
+            style={{ background: colors.brand }}
           >
             ገጹን አድስ
           </button>
