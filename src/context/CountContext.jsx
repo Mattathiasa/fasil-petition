@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { doc, onSnapshot } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db, firebaseReady } from '../firebase'
 
 const CountContext = createContext({ count: null, status: 'connecting' })
 
@@ -9,6 +9,10 @@ export function CountProvider({ children }) {
   const [status, setStatus] = useState('connecting')
 
   useEffect(() => {
+    if (!firebaseReady) {
+      setStatus('error')
+      return
+    }
     const unsub = onSnapshot(
       doc(db, 'stats', 'count'),
       (snap) => {

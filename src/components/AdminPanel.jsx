@@ -12,7 +12,7 @@ import {
   setDoc,
 } from 'firebase/firestore'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { db, auth } from '../firebase'
+import { db, auth, firebaseReady } from '../firebase'
 import { buildSignaturesCsv } from '../lib/csv'
 import { useToast } from '../context/ToastContext'
 import { colors, fonts } from '../lib/theme'
@@ -63,6 +63,10 @@ export default function AdminPanel() {
   const authed = !!user && hasClaim
 
   useEffect(() => {
+    if (!auth) {
+      setAuthLoading(false)
+      return
+    }
     return onAuthStateChanged(auth, async (u) => {
       setUser(u)
       setAuthLoading(false)
@@ -134,6 +138,10 @@ export default function AdminPanel() {
 
   async function login(e) {
     e.preventDefault()
+    if (!firebaseReady) {
+      setPwError('Firebase ቅናሽ የለም — `VITE_FIREBASE_*` በ `.env` ይሙሉ።')
+      return
+    }
     if (!email.trim() || !pw) {
       setPwError('ኢሜይልና የይለፍ ቃል ያስገቡ።')
       return

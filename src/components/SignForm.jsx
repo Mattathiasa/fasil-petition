@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   collection, doc, runTransaction, serverTimestamp, increment,
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db, firebaseReady } from '../firebase'
 import { isValidEmail, normalizeEmail, signatureStorageKey } from '../lib/validation'
 import { useToast } from '../context/ToastContext'
 import { colors, shadows } from '../lib/theme'
@@ -34,6 +34,11 @@ export default function SignForm() {
     if (trimName.length > 100)          { setError('ሙሉ ስምዎ በጣም ረጅም ነው።'); return }
     if (city.trim().length > 60)        { setError('የከተማ ስም በጣም ረጅም ነው።'); return }
     if (comment.trim().length > 500)    { setError('አስተያየትዎ ከ500 ቁጥር በላይ ነው።'); return }
+
+    if (!firebaseReady) {
+      setError('ስርዓቱአሁን ዝግጁ አይደለም — ትንሽ ቆይታ ቆይተው እንደገና ይሞክሩ።')
+      return
+    }
 
     // cross-device duplicate check via localStorage cache
     if (localStorage.getItem(signatureStorageKey(trimEmail))) {

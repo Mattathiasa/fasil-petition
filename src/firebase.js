@@ -12,11 +12,23 @@ const firebaseConfig = {
 }
 
 const missing = Object.entries(firebaseConfig).filter(([, v]) => !v).map(([k]) => k)
-if (missing.length > 0) {
+
+// With a fresh clone and no .env the app must still render (read-only UI)
+// instead of crashing to a blank page — guard the SDK init.
+export const firebaseReady = missing.length === 0
+
+if (!firebaseReady) {
   console.error('[Firebase] Missing env vars:', missing, '— signatures will NOT save.')
 }
 
-const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
-export const auth = getAuth(app)
-export const firebaseReady = missing.length === 0
+let app = null
+let db = null
+let auth = null
+
+if (firebaseReady) {
+  app = initializeApp(firebaseConfig)
+  db = getFirestore(app)
+  auth = getAuth(app)
+}
+
+export { app, db, auth }

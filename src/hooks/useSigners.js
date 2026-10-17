@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db, firebaseReady } from '../firebase'
 
 export function useSigners(n = 25) {
   const [signers, setSigners] = useState([])
   const [status, setStatus] = useState('connecting')
 
   useEffect(() => {
+    if (!firebaseReady) {
+      setStatus('error')
+      return
+    }
     const q = query(
       collection(db, 'signatures'),
       orderBy('createdAt', 'desc'),
