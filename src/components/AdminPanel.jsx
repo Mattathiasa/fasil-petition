@@ -1,16 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   collection,
   query,
   orderBy,
   onSnapshot,
   getCountFromServer,
+  getDocs,
+  limit,
+  startAfter,
   doc,
   setDoc,
 } from 'firebase/firestore'
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { buildSignaturesCsv } from '../lib/csv'
+
+const PAGE_SIZE = 50
 
 const AUTH_ERRORS = {
   'auth/invalid-email':        'ትክክለኛ ኢሜይል ያስገቡ።',
@@ -40,8 +45,12 @@ export default function AdminPanel() {
   const [pwError, setPwError] = useState('')
   const [loggingIn, setLoggingIn] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const [signatures, setSignatures] = useState([])
+  const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const [total, setTotal] = useState(null)
+  const rowsRef = useRef([])
   const [loadError, setLoadError] = useState('')
   const [search, setSearch] = useState('')
   const [copied, setCopied] = useState(false)
@@ -68,20 +77,31 @@ export default function AdminPanel() {
   }, [])
 
   useEffect(() => {
+    rowsRef.current = rows
+  }, [rows])
+
+  useEffect(() => {
     if (!authed) {
-      setSignatures([])
+      setRows([])
       setLoading(true)
+      setHasMore(false)
+      setTotal(null)
       return
     }
+    // Live first page only — older pages are fetched on demand via loadMore.
     const q = query(
       collection(db, 'signatures_private'),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
+      limit(PAGE_SIZE)
     )
     return onSnapshot(
       q,
       (snap) => {
         setLoadError('')
-        setSignatures(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+        const page1 = snap.docs.map((d) => ({ id: d.id, snap: d, ...d.data() }))
+        const page1Ids = new Set(page1.map((r) => r.id))
+        setRows((prev) => [...page1, ...prev.slice(PAGE_SIZE).filter((r) => !page1Ids.has(r.id))])
+        setHasMore(snap.docs.length === PAGE_SIZE)
         setLoading(false)
       },
       (err) => {
@@ -94,6 +114,19 @@ export default function AdminPanel() {
         setLoading(false)
       }
     )
+  }, [authed])
+
+  useEffect(() => {
+    if (!authed) return
+    let cancelled = false
+    getCountFromServer(collection(db, 'signatures_private'))
+      .then((snap) => {
+        if (!cancelled) setTotal(snap.data().count)
+      })
+      .catch((err) => console.error('[AdminPanel total]', err.code))
+    return () => {
+      cancelled = true
+    }
   }, [authed])
 
   async function login(e) {
@@ -136,14 +169,27 @@ export default function AdminPanel() {
     setPwError('')
   }
 
-  function exportCSV() {
-    const blob = new Blob([buildSignaturesCsv(signatures)], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `fasil-petition-${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+  async function fetchAllSignatures() {
+    const snap = await getDocs(
+      query(collection(db, 'signatures_private'), orderBy('createdAt', 'desc'))
+    )
+    return snap.docs.map((d) => d.data())
+  }
+
+  async function exportCSV() {
+    try {
+      const all = await fetchAllSignatures()
+      const blob = new Blob([buildSignaturesCsv(all)], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `fasil-petition-${new Date().toISOString().slice(0, 10)}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('[AdminPanel export]', err.code, err.message)
+      setLoadError('CSV ማውርድ አልተቻለም — ድጋሚ ይሞክሩ።')
+    }
   }
 
   async function verifyCount() {
@@ -162,16 +208,49 @@ export default function AdminPanel() {
     }
   }
 
-  function copyAll() {
-    const text = filtered
-      .map((s, i) => `${i + 1}. ${s.name}${s.city ? ' · ' + s.city : ''}${s.email ? ' | ' + s.email : ''}${s.comment ? '\n   "' + s.comment + '"' : ''}`)
-      .join('\n')
-    navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  async function loadMore() {
+    const last = rowsRef.current.at(-1)
+    if (!last?.snap) return
+    setLoadingMore(true)
+    try {
+      const snap = await getDocs(
+        query(
+          collection(db, 'signatures_private'),
+          orderBy('createdAt', 'desc'),
+          startAfter(last.snap),
+          limit(PAGE_SIZE)
+        )
+      )
+      const more = snap.docs.map((d) => ({ id: d.id, snap: d, ...d.data() }))
+      setRows((prev) => {
+        const ids = new Set(prev.map((r) => r.id))
+        return [...prev, ...more.filter((r) => !ids.has(r.id))]
+      })
+      setHasMore(snap.docs.length === PAGE_SIZE)
+    } catch (err) {
+      console.error('[AdminPanel loadMore]', err.code, err.message)
+      setLoadError('ተጨማሪ መጫን አልተቻለም — ድጋሚ ይሞክሩ።')
+    } finally {
+      setLoadingMore(false)
+    }
   }
 
-  const filtered = signatures.filter((s) => {
+  async function copyAll() {
+    try {
+      const all = await fetchAllSignatures()
+      const text = all
+        .map((s, i) => `${i + 1}. ${s.name}${s.city ? ' · ' + s.city : ''}${s.email ? ' | ' + s.email : ''}${s.comment ? '\n   "' + s.comment + '"' : ''}`)
+        .join('\n')
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('[AdminPanel copy]', err.code, err.message)
+      setLoadError('Clipboard ላይ መቅዳት አልተቻለም።')
+    }
+  }
+
+  const filtered = rows.filter((s) => {
     if (!search) return true
     const q = search.toLowerCase()
     return (
@@ -182,10 +261,10 @@ export default function AdminPanel() {
     )
   })
 
-  const withCity = signatures.filter((s) => s.city).length
-  const withComment = signatures.filter((s) => s.comment).length
+  const withCity = rows.filter((s) => s.city).length
+  const withComment = rows.filter((s) => s.comment).length
   const distinctCities = new Set(
-    signatures.map((s) => s.city).filter(Boolean)
+    rows.map((s) => s.city).filter(Boolean)
   ).size
 
   // ── Auth bootstrapping ─────────────────────────────────────────
@@ -311,7 +390,11 @@ export default function AdminPanel() {
             ፋሲል ፔቲሽን — ፊርማዎች
           </h1>
           <p className="text-gray-500 text-xs">
-            {loading ? 'በመጫን ላይ...' : `${signatures.length.toLocaleString()} ጠቅላላ`}
+            {loading
+              ? 'በመጫን ላይ...'
+              : total !== null
+                ? `${rows.length.toLocaleString()} / ${total.toLocaleString()} የታወቁ`
+                : `${rows.length.toLocaleString()} የታወቁ`}
             {user?.email && <span className="text-gray-600"> · {user.email}</span>}
           </p>
         </div>
@@ -353,7 +436,7 @@ export default function AdminPanel() {
         {/* Stats cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { value: signatures.length, label: 'ጠቅላላ ፊርማዎች', color: '#fff' },
+            { value: total ?? rows.length, label: 'ጠቅላላ ፊርማዎች', color: '#fff' },
             { value: distinctCities, label: 'የተለያዩ ከተማዎች', color: '#CC0000' },
             { value: withCity, label: 'ከተማ ያለው', color: '#4fc3f7' },
             { value: withComment, label: 'አስተያየት ያለው', color: '#4ade80' },
@@ -482,9 +565,32 @@ export default function AdminPanel() {
         </div>
 
         {!loading && filtered.length > 0 && (
-          <p className="text-center text-gray-700 text-xs pb-4">
-            {filtered.length.toLocaleString()} ፊርማዎች ይታያሉ
-          </p>
+          <div className="text-center pb-4 space-y-3">
+            {hasMore && (
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="px-6 py-3 rounded-xl text-sm font-bold disabled:opacity-50"
+                style={{ background: '#1a1a1a', border: '1px solid #333', color: '#fff' }}
+              >
+                {loadingMore
+                  ? '⏳ በመጫን ላይ...'
+                  : `ተጨማሪ ጫን (+${PAGE_SIZE.toLocaleString()})`}
+              </button>
+            )}
+            <p className="text-gray-700 text-xs">
+              {filtered.length.toLocaleString()} ፊርማዎች ይታያሉ
+              {total !== null && rows.length < total && (
+                <span> · ጠቅላላ {total.toLocaleString()} ነው</span>
+              )}
+            </p>
+            {total !== null && rows.length < total && (
+              <p className="text-gray-700 text-xs">
+                ከተማ/አስተያየት ስታቲስቲኮች የሚሆኑት የታወቁትን {rows.length.toLocaleString()} ላይ ነው
+              </p>
+            )}
+          </div>
         )}
       </div>
     </div>
