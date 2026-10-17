@@ -23,7 +23,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "admin:grant": "node scripts/grant-admin.mjs"
+    "admin:grant": "node scripts/grant-admin.mjs",
+    "migrate:dry": "node scripts/migrate-signatures.mjs",
+    "migrate:apply": "node scripts/migrate-signatures.mjs --apply"
   },
   "dependencies": {
     "firebase": "^10.12.0",
